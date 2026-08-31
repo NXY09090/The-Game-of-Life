@@ -955,7 +955,7 @@ const PAGE_META={
   home:{t:'🏠 主界面',d:''},
   timeline:{t:'🌸 今日记录',d:''},
   health:{t:'🏆 健康人生',d:''},
-  universe:{t:'🛰️ 全息宇宙',d:'主线计划 · 每日支线 · 每日碎片'},
+  universe:{t:'🎮 任务面板',d:'主线计划 · 每日支线 · 每日碎片'},
   matrix:{t:'📅 周期打卡一览',d:''},
   challenges:{t:'⏰ 限时挑战',d:''},
   retro:{t:'📜 时光回溯',d:''},
@@ -1792,7 +1792,7 @@ function renderUniverse(page){
     // —— 每个 Tab 独立管理自己的内容，板块分开不干涉 ——
     var manage=cur[2]();
     page.innerHTML=
-      '<div class="page-title">🛰️ 全息宇宙</div>'+
+      '<div class="page-title">🎮 任务面板</div>'+
       '<div class="page-desc">主线计划 · 每日支线 · 每日碎片，三个板块各自独立管理，互不影响。</div>'+
       '<div class="uni-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">'+btns+'</div>'+
       '<div class="card" id="manageArea">'+
@@ -1964,7 +1964,7 @@ function renderMatrix(page){
   <div class="page-title">📅 周期打卡一览</div>
   <div class="page-desc">主线打卡 · 支线打卡 · 习惯记录，三个板块一目了然。列 = 周期内的第几天，实时反馈，不用等10天后揭晓。顶部「📆 今日小结」汇总当天进度。</div>
   ${todaySummary}
-  ${!DB.cycle.active?'<div class="lock-banner">⚠️ 当前还没有进行中的周期，先去「🛰️ 全息宇宙」底部开启一个周期。</div>':''}
+  ${!DB.cycle.active?'<div class="lock-banner">⚠️ 当前还没有进行中的周期，先去「🎮 任务面板」底部开启一个周期。</div>':''}
 
   <div class="card"><h3>🎯 主线打卡</h3>
     <div class="matrix-legend" style="margin-bottom:8px"><span><i class="lg" style="background:rgba(143,174,138,.28)"></i>已完成（✅⭐❤️）</span> <span><i class="lg" style="background:rgba(192,138,122,.28)"></i>未通关（⚠️）</span> <span><i class="lg" style="background:#fff"></i>未打卡（·）</span></div>
