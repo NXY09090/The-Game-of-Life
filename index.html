@@ -175,6 +175,8 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .quest .q-del:hover{opacity:1;color:var(--warn)}
 .quest .q-desc{width:100%;font-size:13px;color:var(--ink);margin:4px 0 10px;padding:8px 10px;
   border:1.5px solid var(--line);border-radius:8px;background:var(--panel);resize:vertical;min-height:34px}
+.quest .q-desc:focus{border-color:var(--accent);outline:none}
+.quest .q-desc[readonly]{background:rgba(0,0,0,.03);color:var(--ink-soft);border-style:dashed;resize:none}
 .marks{display:flex;gap:6px;flex-wrap:wrap}
 .mark-btn{padding:7px 12px;border:2px solid var(--line);border-radius:8px;font-size:13px;
   background:var(--panel);transition:.12s}
@@ -696,7 +698,7 @@ function defaultDB(){
     theme:{mode:'gradient',color1:'#c9d6df',color2:'#e4e9ee',cover:null},
     mainQuests:[
       {id:'M1',name:'早点睡觉',desc:'22:00前入睡',locked:false},
-      {id:'M2',name:'写作',desc:'≥100字（理想3000字/纸笔2页+PS存档）',locked:false},
+      {id:'M2',name:'写作',desc:'≥100字（理想3000字/纸笔2页+WPS存档）',locked:false},
       {id:'M3',name:'减重',desc:'当日零零食',locked:false},
       {id:'M4',name:'戒断幻想',desc:'无封闭沉浸式幻想',locked:false},
       {id:'M5',name:'护肤',desc:'洁面或面霜任一',locked:false},
@@ -709,10 +711,10 @@ function defaultDB(){
       {id:'S4',name:'看电影',count:0,locked:false},
     ],
     extraFields:[
-      {key:'toilet',name:'大厕所',logs:[]},
-      {key:'food',name:'进食',logs:[]},
-      {key:'water',name:'喝水',logs:[]},
-      {key:'release',name:'看片释放',logs:[]},
+      {key:'toilet',name:'🚾',logs:[]},
+      {key:'food',name:'🥤',logs:[]},
+      {key:'water',name:'🥣',logs:[]},
+      {key:'release',name:'🎦',logs:[]},
     ],
     progression:{
       M1:{level:1,tiers:['夜之初拥','暮色学徒','安眠使者','梦境编织者','睡眠领主','月下贵族','永夜之神']},
@@ -1680,7 +1682,7 @@ function renderHome(page){
     </div>
     <div class="welcome-date">${todayStr()} · ${new Date().toLocaleDateString('zh-CN',{weekday:'long'})}</div>
   </div>
-  <button class="checkin-btn" onclick="go('universe')" title="进入全息宇宙 · 一键打卡">
+  <button class="checkin-btn" onclick="go('universe')" title="进入任务面板 · 一键打卡">
     <span class="checkin-globe">🌏</span>
   </button>
   <div class="card">
@@ -1774,7 +1776,7 @@ function renderTimeline(page){
   </div>`;
 }
 
-/* 全息宇宙: 主线/支线/碎片 3 Tab + 顶部公共快捷打卡区（3 板块一次打完，不重复） */
+/* 任务面板: 主线/支线/碎片 3 Tab + 顶部公共快捷打卡区（3 板块一次打完，不重复） */
 function renderUniverse(page){
     var tab=(window.__uniTab||'main');
     var tabs=[
@@ -1791,12 +1793,18 @@ function renderUniverse(page){
     }
     // —— 每个 Tab 独立管理自己的内容，板块分开不干涉 ——
     var manage=cur[2]();
+    // —— 周期锁定状态栏：周期内(10天)锁定编辑，周期外(含结算后空档)可编辑 ——
+    var remaining=DB.cycle.active?(DB.cycle.length-(DB.cycle.dayInCycle||1)):0;
+    var lockBar=DB.cycle.active
+      ? '<div class="lock-banner" style="margin-bottom:14px">🔒 周期进行中（还剩 '+Math.max(remaining,0)+' 天）· 结算后可编辑任务</div>'
+      : '<div class="lock-banner" style="margin-bottom:14px;background:rgba(143,174,138,.18);border-color:rgba(143,174,138,.5)">🔓 周期外 · 当前可自由编辑 / 增删任务（开启新周期后将自动锁定）</div>';
     page.innerHTML=
       '<div class="page-title">🎮 任务面板</div>'+
       '<div class="page-desc">主线计划 · 每日支线 · 每日碎片，三个板块各自独立管理，互不影响。</div>'+
+      lockBar+
       '<div class="uni-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">'+btns+'</div>'+
       '<div class="card" id="manageArea">'+
-        '<div class="ci-head"><span>📂 当前板块：'+esc(cur[1])+'</span><span class="ci-sub">设定任务 / 记录打卡时间·内容</span></div>'+
+        '<div class="ci-head"><span>📂 当前板块：'+esc(cur[1])+'</span><span class="ci-sub">'+(tab==='main'?'周期内锁定 · 周期外可编辑':'设定任务 / 记录打卡时间·内容')+'</span></div>'+
         manage+
         (tab==='main'&&!isLocked()?'<button class="btn sm" style="margin-top:12px" onclick="addQuest()">＋ 添加主线</button>':'')+
         (tab==='side'&&DB.sideQuests.length&&!isLocked()?'<button class="btn sm" style="margin-top:12px" onclick="addSide()">＋ 添加支线</button>':'')+
@@ -1807,14 +1815,25 @@ function renderUniverse_main(){
   var d=today();var locked=isLocked();var out='';
   for(var i=0;i<DB.mainQuests.length;i++){
     var q=DB.mainQuests[i];var cur=(d.mainMarks||{})[q.id]||'';
+    var p=(DB.progression||{})[q.id]||{};var lvl=(p.level||1);
+    // —— 打卡按钮（周期内仍可打卡，只锁定"编辑/删除"；与支线碎片行为对齐）——
     var btns='';var mks=['✅','⭐','❤️','⚠️'];
     for(var mi=0;mi<mks.length;mi++){
       var mk=mks[mi];
       btns+='<button class="ci-btn '+(cur===mk?'on':'')+'" '+(locked||d.locked?'disabled':'')+' onclick="markQuest(\''+q.id+'\',\''+mk+'\')">'+mk+'</button>';
     }
-    out+='<div class="ci-row"><span class="ci-no">'+q.id+'</span><span class="ci-name">'+esc(q.name)+'</span><span class="ci-marks">'+btns+'</span></div>';
+    out+='<div class="quest '+(locked?'locked':'')+'">'+
+      '<div class="q-head"><span class="q-no">'+q.id+'</span>'+
+        '<input class="q-name" value="'+esc(q.name)+'" '+(locked?'readonly':'')+' onchange="renameQuest('+i+',this.value)" placeholder="主线名称">'+
+        (locked?'':'<button class="q-del" onclick="deleteQuest('+i+')" title="删除">🗑️</button>')+
+      '</div>'+
+      '<textarea class="q-desc" rows="1" placeholder="备注 / 规则 / 目标描述（如：22:00前入睡）" '+(locked?'readonly ':'')+'onchange="setQuestDesc('+i+',this.value)" oninput="autoGrow(this)">'+esc(q.desc||'')+'</textarea>'+
+      '<div class="q-meta">进阶目标 · <strong>Lv.'+lvl+'</strong>（M'+lvl+'）'+(q.desc?' · 已设备注':'')+'</div>'+
+      '<div class="marks">'+btns+'</div>'+
+    '</div>';
   }
-  return out||'<div class="empty" style="padding:10px">还没有主线，点击下方添加。</div>';
+  if(!out) out='<div class="empty" style="padding:10px">还没有主线，'+(locked?'周期结束后可添加':'点击下方添加')+'。</div>';
+  return out;
 }
 function renderUniverse_side(){
   var locked=isLocked();var out='';
@@ -1849,7 +1868,7 @@ function renderUniverse_frag(){
     }).join('');
     out+='<div class="frag-card">'+
       '<div class="frag-head">'+
-        '<input class="f-name" value="'+esc(f.name)+'" '+(locked?'readonly':'')+' onchange="renameExtra('+i+',this.value)" placeholder="碎片名称（上厕所/心情/喝水…）">'+
+        '<input class="f-name" value="'+esc(f.name)+'" '+(locked?'readonly':'')+' onchange="renameExtra('+i+',this.value)" placeholder="碎片名称">'+
         '<span class="frag-count">今日 <b>'+todayN+'</b> · 总计 <span class="total">'+totalN+'</span></span>'+
         (locked?'':'<button class="q-del" onclick="delExtra('+i+')" title="删除此碎片">🗑️</button>')+
       '</div>'+
@@ -1873,7 +1892,8 @@ function onAddFrag(i){
 
 function addTLRow(){const t=today();t.timeline=t.timeline||[];t.timeline.push({time:'',content:'',feel:'',achievement:''});save();render()}
 function renameQuest(i,v){const oldN=DB.mainQuests[i].name;migrateBookOnRename(oldN,v);DB.mainQuests[i].name=v;save();render()}
-function setQuestDesc(i,v){DB.mainQuests[i].desc=v;save();render()}
+function setQuestDesc(i,v){const q=DB.mainQuests[i];const oldD=q.desc||'';v=(v||'').trim();q.desc=v;if(oldD!==v)DB.correctionLog.push({date:todayStr(),action:'修改主线备注',orig:q.id+' '+(oldD||'（空）'),new:q.id+' '+(v||'（空）')});save();render()}
+function autoGrow(el){el.style.height='auto';el.style.height=el.scrollHeight+'px'}
 function addQuest(){DB.mainQuests.push({id:'M'+(DB.mainQuests.length+1),name:'新主线',desc:'',locked:false});save();render()}
 function deleteQuest(i){
   if(isLocked()){alert('周期进行中无法删除，周期结束后再操作');return}
