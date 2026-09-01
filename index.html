@@ -426,7 +426,7 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .badge-cell.attr.on{background:linear-gradient(135deg,#fff3d6,#ffe6b3)}
 .badge-cell.attr.got{background:linear-gradient(135deg,#ffe6b3,#f5d98a)}
 
-/* ============ 每日碎片 · 多条例表（时间+内容+感受，从新到旧，计数） ============ */
+/* ============ 习惯记录 · 多条例表（时间+内容+感受，从新到旧，计数） ============ */
 .frag-card{background:var(--panel-solid);border:2px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
 .frag-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .frag-head .f-name{flex:1;min-width:100px;font-weight:700;font-size:15px;border:none;background:transparent}
@@ -448,6 +448,32 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .frag-add .f-text-input{flex:1;min-width:140px}
 .frag-add .f-feel-input{flex:1;min-width:120px}
 .frag-add button{background:var(--accent);color:#fff;font-weight:700;padding:9px 18px;border-radius:8px;white-space:nowrap;font-size:14px}
+
+/* ============ 习惯记录 · 日期分组 + 折叠 + 封存 ============ */
+.frag-groups{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.frag-group{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;overflow:hidden;transition:.2s}
+.frag-group[open]{box-shadow:2px 2px 0 var(--shadow)}
+.frag-group-header{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none;
+  font-size:13px;font-weight:600;color:var(--ink);list-style:none}
+.frag-group-header::-webkit-details-marker{display:none}
+.frag-group-date{flex:1;font-weight:700}
+.frag-group-count{font-size:11px;color:var(--accent);background:rgba(125,158,176,.14);padding:2px 8px;border-radius:8px;white-space:nowrap}
+.frag-group-seal{font-size:11px;color:var(--ink-soft)}
+.frag-group-arrow{font-size:12px;color:var(--ink-soft);transition:transform .2s}
+.frag-group[open] .frag-group-arrow{transform:rotate(180deg)}
+.frag-group-body{padding:4px 12px 12px;border-top:1px dashed var(--line)}
+.frag-group-sealed .frag-group-header{color:var(--ink-soft)}
+.frag-group-sealed .frag-group-date{color:var(--ink-soft)}
+.frag-group-sealed .frag-log{opacity:.7;background:rgba(0,0,0,.02)}
+.frag-group-sealed .frag-log .f-text{color:var(--ink-soft)}
+.frag-log-sealed{position:relative}
+.frag-del-placeholder{width:24px;height:24px;flex-shrink:0;display:inline-block}
+
+/* ============ 定时信箱 · 神秘感 ============ */
+.letter-sealed{transition:transform .2s}
+.letter-sealed:active{transform:scale(.97)}
+@keyframes shakeLetter{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.letter-opened{border-left:3px solid var(--gold)}
 
   </style>
 </head>
@@ -516,23 +542,23 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 
 /* ---------- 属性点定义（5类 × 3档徽章：30/60/100） ---------- */
 const ATTR_DEFS = {
-  health:  { icon:'💪', name:'健康', desc:'运动、饮食、作息、体重管理' },
-  beauty:  { icon:'✨', name:'美貌', desc:'化妆、护肤、穿搭、美甲' },
-  wisdom:  { icon:'🧠', name:'智慧', desc:'阅读、学习、语言、写作' },
-  will:    { icon:'🔥', name:'意志', desc:'坚持打卡、早起、完成任务' },
-  charm:   { icon:'💖', name:'魅力', desc:'社交、心情、兴趣爱好' }
+  health:  { icon:'💪', name:'健康', desc:'运动、饮食、作息、睡觉、体重管理、瑜伽、体态' },
+  beauty:  { icon:'✨', name:'美貌', desc:'化妆、护肤、穿搭、面膜、穿搭、戒指、项链、口号、美甲' },
+  wisdom:  { icon:'🧠', name:'智慧', desc:'阅读、学习、语言、写作、书籍、日语、韩语、英语、辩论' },
+  will:    { icon:'🔥', name:'意志', desc:'坚持打卡、早起、完成任务、日记、复盘' },
+  charm:   { icon:'💖', name:'魅力', desc:'社交、心情、画画、朋友、丙烯、练字、普通话、自媒体、兴趣爱好' }
 };
 const ATTR_TIERS = [30, 60, 100];   // 每档阈值
 const ATTR_PER_TASK = {             // 每个任务打卡时加哪些属性、各加几点
-  '做菜':{health:1,charm:1}, '运动':{health:2,will:1}, '散步':{health:1,charm:1},
-  '拖地':{health:1,will:1}, '擦家具':{health:1,will:1}, '照顾宠物':{charm:2},
-  '写日记':{wisdom:1,will:1}, '写影评':{wisdom:2}, '影视自媒体':{wisdom:1,charm:1},
+  '做菜':{health:1,charm:1},  '做饭':{health:1,charm:1}, '运动':{health:2,will:1}, '散步':{health:1,charm:1},
+  '拖地':{health:1,will:1}, '擦家具':{health:1,will:1}, '宠物':{charm:2}, '家务':{health:1,charm:1}, 
+  '写日记':{wisdom:1,will:1}, '影评':{wisdom:2}, '自媒体':{wisdom:1,charm:1},
   '日程设计':{will:2}, '普通话':{wisdom:2}, '英语':{wisdom:2}, '韩语':{wisdom:2},
-  '日语':{wisdom:2}, '阅读名著':{wisdom:2}, '电影专业书':{wisdom:2},
-  '艺术理论书':{wisdom:2}, '心理学书':{wisdom:2}, '体重管理':{health:2,will:1},
-  '朋友聚会':{charm:2}, '美甲':{beauty:2}, '化妆':{beauty:2},
+  '日语':{wisdom:1}, '阅读':{wisdom:1}, '专业':{wisdom:1},
+  '艺术':{wisdom:1}, '心理学':{wisdom:1}, '体重管理':{health:2,will:1},
+  '朋友':{charm:1}, '美甲':{beauty:2}, '化妆':{beauty:2},
   '丙烯画画':{charm:2}, '毛笔字':{wisdom:1,charm:1}, '数字油画':{charm:2},
-  '电影':{charm:2}, '看电视剧':{charm:1}
+  '电影':{charm:2}, '看电视剧':{charm:1},'影视':{charm:1}
 };
 function attrGainsFor(taskName){
   return ATTR_PER_TASK[taskName] || {will:1};   // 未列出的默认加意志力
@@ -697,18 +723,18 @@ function defaultDB(){
     successfulCycles:0,
     theme:{mode:'gradient',color1:'#c9d6df',color2:'#e4e9ee',cover:null},
     mainQuests:[
-      {id:'M1',name:'早点睡觉',desc:'22:00前入睡',locked:false},
-      {id:'M2',name:'写作',desc:'≥100字（理想3000字/纸笔2页+WPS存档）',locked:false},
-      {id:'M3',name:'减重',desc:'当日零零食',locked:false},
-      {id:'M4',name:'戒断幻想',desc:'无封闭沉浸式幻想',locked:false},
-      {id:'M5',name:'护肤',desc:'洁面或面霜任一',locked:false},
-      {id:'M6',name:'刷牙',desc:'早1次=✅ 3次=❤️',locked:false},
+      {id:'M1',name:'任务一',desc:'任务具体计划或者评判标准',locked:false},
+      {id:'M2',name:'任务二',desc:'任务具体计划或者评判标准',locked:false},
+      {id:'M3',name:'任务三',desc:'任务具体计划或者评判标准',locked:false},
+      {id:'M4',name:'任务四',desc:'任务具体计划或者评判标准',locked:false},
+      {id:'M5',name:'任务五',desc:'任务具体计划或者评判标准',locked:false},
+      {id:'M6',name:'任务六',desc:'任务具体计划或者评判标准',locked:false},
     ],
     sideQuests:[
-      {id:'S1',name:'英语',count:0,locked:false},
-      {id:'S2',name:'练字',count:0,locked:false},
-      {id:'S3',name:'普通话',count:0,locked:false},
-      {id:'S4',name:'看电影',count:0,locked:false},
+      {id:'S1',name:'支线一',count:0,locked:false},
+      {id:'S2',name:'支线二',count:0,locked:false},
+      {id:'S3',name:'支线三',count:0,locked:false},
+      {id:'S4',name:'支线四',count:0,locked:false},
     ],
     extraFields:[
       {key:'toilet',name:'🚾',logs:[]},
@@ -725,11 +751,14 @@ function defaultDB(){
       M6:{level:1,tiers:['皓齿初鸣','口腔学徒','清新使者','微笑工匠','牙齿领主','璀璨之星','永恒微笑']},
     },
     wishlist:[
+      {name:'漂亮饭',price:150,bought:false},
+      {name:'香水',price:200,bought:false},
+      {name:'汉服',price:300,bought:false},
       {name:'CCD相机',price:300,bought:false},
       {name:'旗袍',price:300,bought:false},
-      {name:'香水',price:200,bought:false},
+      {name:'帝政裙',price:400,bought:false},
     ],
-    giftPool:{low:'贴纸,糖果,发圈',mid:'笔记本,护手霜,书签',high:'香薰,首饰,手办'},
+    giftPool:{low:'贴纸,糖果,发圈,',mid:'笔记本,护手霜,书签',high:'香薰,首饰,手办,口红,盲盒,台灯'},
     rewardRules:{
       r1:{min:40,max:60,money:20,giftLow:5,physical:'钢笔 / 积木组'},
       r2:{min:60,max:80,money:40,giftLow:10,physical:'指甲油 / 桌子'},
@@ -743,6 +772,7 @@ function defaultDB(){
     letters:[],
     correctionLog:[],
     archive:[],
+    cycleArchive:[], // 赛季归档：每个周期结束后的完整快照
     // ═══ 健康人生板块（10天周期，与计划不挂钩） ═══
     healthCycle:{active:false,startDate:null,length:10,dayInCycle:0},
     healthHistory:[], // {date, weight, food}
@@ -766,8 +796,9 @@ function migrateDB(r){
   }
   if(!Array.isArray(r.healthHistory)) r.healthHistory=[];
   if(!r.healthCycle||typeof r.healthCycle!=='object') r.healthCycle={active:false,startDate:null,length:10,dayInCycle:0};
+  if(!Array.isArray(r.cycleArchive)) r.cycleArchive=[];   // 赛季归档数组
   if(!r.achievementBook||typeof r.achievementBook!=='object') r.achievementBook={};
-  // —— 每日碎片：旧版用 value(字符串) 存单条，迁移为 logs(数组) 支持多条记录 ——
+  // —— 习惯记录：旧版用 value(字符串) 存单条，迁移为 logs(数组) 支持多条记录 ——
   if(!Array.isArray(r.extraFields)) r.extraFields=def.extraFields;
   r.extraFields.forEach(function(f){
     if(typeof f.value==='string' && !Array.isArray(f.logs)){f.logs=f.value.trim()?[{time:'',text:f.value,feel:''}]:[]}
@@ -798,7 +829,7 @@ function today(){return DB.records[todayStr()] || (DB.records[todayStr()]={timel
 function totalDays(){const s=new Date(DB.startDate),e=new Date(todayStr());return Math.floor((e-s)/86400000)+1}
 function esc(s){return(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 
-/* ---------- 每日碎片：多条例表（时间+内容+感受，从新到旧，今日/总计计数） ---------- */
+/* ---------- 习惯记录：多条例表（时间+内容+感受，从新到旧，今日/总计计数） ---------- */
 function dateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function nowHM(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 // 某碎片今日记录数
@@ -812,7 +843,10 @@ function addFragLog(i,time,text,feel){
   const f=DB.extraFields[i];if(!f)return;
   const t=(time&&time.trim())||nowHM();
   const txt=(text||'').trim();if(!txt)return;   // 内容为空不记录
-  const log={time:t,text:txt,feel:(feel||'').trim(),_date:todayStr()};
+  // 记录完整时间戳：YYYY-MM-DD HH:MM（前端展示用 fullTime，_date 供分组）
+  const now=new Date();
+  const fullTime=todayStr()+' '+t;
+  const log={time:t,fullTime:fullTime,text:txt,feel:(feel||'').trim(),_date:todayStr()};
   f.logs=(f.logs||[]);f.logs.push(log);
   // 同时写一份到今日 records.extra[f.key]，兼容周期看板的矩阵统计
   const rec=today();rec.extra=rec.extra||{};rec.extra[f.key]=f.logs.filter(l=>l._date===todayStr());
@@ -821,11 +855,20 @@ function addFragLog(i,time,text,feel){
   if(typeof onTaskProgress==='function'){try{onTaskProgress(f.name,'frag');}catch(e){}}
   save();render();
 }
-// 删除单条记录
+// 删除单条记录（含二次确认 + 封存检查）
 function delFragLog(i,logIdx){
   const f=DB.extraFields[i];if(!f)return;
   f.logs=(f.logs||[]);
-  const removed=f.logs.splice(logIdx,1)[0];
+  const removed=f.logs[logIdx];
+  // 封存检查：非当天的记录不可删除
+  if(removed && isLogSealed(removed)){
+    alert('🔒 这条记录已封存（跨天后不可删除），它是你真实的历史。');
+    return;
+  }
+  // 二次确认
+  const preview=(removed&&removed.text||'').slice(0,30);
+  if(!confirm('🗑️ 确定删除这条记录？\n\n「'+preview+(preview.length>=30?'…':'')+'」\n\n此操作不可撤销。'))return;
+  f.logs.splice(logIdx,1);
   // 同步今日 records.extra
   const rec=today();rec.extra=rec.extra||{};
   rec.extra[f.key]=(rec.extra[f.key]&&Array.isArray(rec.extra[f.key]))?rec.extra[f.key].filter(l=>l!==removed):(f.logs.filter(l=>l._date===todayStr()));
@@ -881,10 +924,15 @@ function tryEarnToday(){
 function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
 /* ════════════════════════════════════════════════════════════════
-   💬 每日一句 · 内置80句正能量（离线固定，按诞生天数循环匹配）
+   💬 每日一句（离线固定，按诞生天数循环匹配）
 ════════════════════════════════════════════════════════════════ */
 const DAILY_QUOTES=[
- '今天又是值得的一天','渔夫出海时也不知道鱼在哪里，先出发再说','每一步都算数','星光不问赶路人','越努力越幸运',
+ '我本身就是完整且值得被爱的，不需要靠外界的认可来定义我的价值','我允许自己慢慢来，我的节奏刚刚好','我拥有独特的天赋，我的存在本身就是一份礼物','我原谅自己的不完美，因为那正是我真实的一部分',
+'先装模作样，再像模像样，最后有模有样','每一次的困难都是让我变得更强大的机会', '我有能力应对生命中出现的任何挑战','我不必事事都做到完美，尽力而为就已经足够优秀',
+'过去的挫折只是我成长的养分，它们无法定义我的未来','我选择放下无法控制的事情，把精力留给能改变的部分', '我的内心充满平静与力量，任何风暴都无法撼动我的根基','我允许自己感受所有的情绪，然后温柔地让它们流过',
+'今天，我选择把注意力放在让我感恩的事情上','我有勇气踏出舒适区，去探索未知的可能','我的每一个微小行动，都在把我带向理想的生活','我值得拥有生命中一切美好的事物',
+'我相信自己的直觉，我做出的决定都是当下最好的选择','我允许好事发生，我也已经准备好迎接它们了','我不需要和任何人比较，我的赛道只属于我自己','我的存在本身，就已经让这个世界变得更美好了一点',
+  '今天又是值得的一天','渔夫出海时也不知道鱼在哪里，先出发再说','每一步都算数','星光不问赶路人','越努力越幸运',
  '保持热爱，奔赴山海','万物皆有裂痕，那是光照进来的地方','生活明朗，万物可爱','做自己的太阳','不负韶华',
  '行动是治愈的良方','种一棵树最好的时间是十年前，其次是现在','但行好事，莫问前程','心若向阳，无畏悲伤','未来可期',
  '你比自己想象的更强大','坚持就是胜利','慢慢来，比较快','只要出发，就会到达','今天的努力是明天的礼物',
@@ -957,7 +1005,7 @@ const PAGE_META={
   home:{t:'🏠 主界面',d:''},
   timeline:{t:'🌸 今日记录',d:''},
   health:{t:'🏆 健康人生',d:''},
-  universe:{t:'🎮 任务面板',d:'主线计划 · 每日支线 · 每日碎片'},
+  universe:{t:'🎮 任务面板',d:'主线计划 · 每日支线 · 习惯记录'},
   matrix:{t:'📅 周期打卡一览',d:''},
   challenges:{t:'⏰ 限时挑战',d:''},
   retro:{t:'📜 时光回溯',d:''},
@@ -1040,8 +1088,8 @@ const ACHIEVEMENT_WORDS = {
       6:['家中策展人','家具艺术家','家居之神'],
       7:['洁净之神','无尘境界','光洁宗师']
     },
-    '擦家具':{
-      1:['木纹重现','家具初擦','灰尘退散'],
+    '家具':{
+      1:['洁净使者','一尘不染','洁净之力'],
       2:['再擦一件','光泽渐显','又亮了'],
       3:['家具美容','木纹发光','反光板'],
       4:['家具美容师','家居光泽达人','擦亮专家'],
@@ -1163,7 +1211,7 @@ const ACHIEVEMENT_WORDS = {
       6:['智者','书海宗师','阅读之神'],
       7:['万卷之主','永恒智者','书之神']
     },
-    '看电影':{
+    '电影':{
       1:['光影初探','银幕初体验','第一帧'],
       2:['二刷真香','又看一部','常看常新'],
       3:['独立见解','光影解码','影评萌芽'],
@@ -1172,7 +1220,7 @@ const ACHIEVEMENT_WORDS = {
       6:['光影宗师','电影之神','银幕大师'],
       7:['永恒银幕','光影主宰','电影不朽']
     },
-    '看电视剧':{
+    '电视剧':{
       1:['入坑预警','第一集','追剧初体验'],
       2:['又追一集','再刷一集','追剧不停'],
       3:['一季通关','追剧小成','剧情沉浸'],
@@ -1181,7 +1229,7 @@ const ACHIEVEMENT_WORDS = {
       6:['追剧之神','剧集主宰','永恒观众'],
       7:['剧集不朽','追剧传奇','屏幕之主']
     },
-    '电影专业书':{
+    '专业书':{
       1:['镜头初探','理论初尝','第一页'],
       2:['再读一章','理论初识','知识积累'],
       3:['准电影人','镜头语言','影像解构'],
@@ -1190,7 +1238,7 @@ const ACHIEVEMENT_WORDS = {
       6:['电影理论大师','理论宗师','知识之神'],
       7:['不朽学者','知识主宰','智慧之神']
     },
-    '艺术理论书':{
+    '艺术':{
       1:['审美萌芽','艺术初探','第一页'],
       2:['再读一章','理论初识','知识积累'],
       3:['艺术通识','审美提升','艺术觉醒'],
@@ -1199,7 +1247,7 @@ const ACHIEVEMENT_WORDS = {
       6:['艺术宗师','理论宗师','艺术之神'],
       7:['不朽艺术家','美学主宰','艺术不朽']
     },
-    '心理学书':{
+    '心理学':{
       1:['心理初探','心理学启蒙','第一页'],
       2:['再读一章','理论初识','知识积累'],
       3:['心灵捕手','心理觉醒','自我洞察'],
@@ -1229,7 +1277,7 @@ const ACHIEVEMENT_WORDS = {
       6:['美甲女王','指尖传奇','甲艺宗师'],
       7:['永恒指尖','美甲之神','甲艺不朽']
     },
-    '朋友聚会':{
+    '朋友':{
       1:['社交破冰','人脉破冰船','初次相聚'],
       2:['再聚一次','圈子扩大','又见老友'],
       3:['拉帮结派','社交小成','朋友渐多'],
@@ -1238,7 +1286,7 @@ const ACHIEVEMENT_WORDS = {
       6:['社交之神','人脉之王','派对传奇'],
       7:['无界社交','人脉主宰','社交不朽']
     },
-    '体重管理':{
+    '体重':{
       1:['微光初现','关注体重','第一步'],
       2:['趋势向好','轻盈渐显','甜头尝到'],
       3:['十日轻盈','衣带渐宽','身体觉醒'],
@@ -1276,35 +1324,17 @@ const ACHIEVEMENT_WORDS = {
       5:['光影诗人','油画大师','数字画宗师'],
       6:['油画宗师','光影传奇','数字画之神'],
       7:['永恒光影','油画不朽','色彩永恒']
-    },
-    '电影':{
-      1:['光影初探','银幕初体验','第一帧'],
-      2:['二刷真香','又看一部','常看常新'],
-      3:['独立见解','光影解码','影评萌芽'],
-      4:['影迷','观影达人','电影爱好者'],
-      5:['电影通','光影收藏家','影像哲学家'],
-      6:['光影宗师','电影之神','银幕大师'],
-      7:['永恒银幕','光影主宰','电影不朽']
-    },
-    '看电视剧':{
-      1:['入坑预警','第一集','追剧初体验'],
-      2:['又追一集','再刷一集','追剧不停'],
-      3:['一季通关','追剧小成','剧情沉浸'],
-      4:['剧集达人','追剧高手','剧情解读者'],
-      5:['追剧王者','剧集宗师','剧情之神'],
-      6:['追剧之神','剧集主宰','永恒观众'],
-      7:['剧集不朽','追剧传奇','屏幕之主']
     }
   }
 };
 
 // 标签元信息（第2条：按南熹玉指定重新分配）
 const ACHIEVEMENT_GROUPS = {
-  'survival':{name:'🛡️ 生存印记',cls:'survival',tasks:['做菜','拖地','擦家具','照顾宠物','散步']},
-  'pen':{name:'✍️ 笔墨征程',cls:'pen',tasks:['写日记','写影评','影视自媒体','日程设计']},
-  'mind':{name:'🧠 智识进阶',cls:'mind',tasks:['普通话','英语','韩语','日语','阅读名著','电影专业书','艺术理论书','心理学书']},
-  'energy':{name:'🌿 生命能量',cls:'energy',tasks:['体重管理','运动','朋友聚会','美甲']},
-  'fun':{name:'🎮 灵魂逸趣',cls:'fun',tasks:['化妆','丙烯画画','毛笔字','数字油画','电影','看电视剧']}
+  'survival':{name:'🛡️ 生存印记',cls:'survival',tasks:['做菜','拖地','家具','宠物']},
+  'pen':{name:'✍️ 笔墨征程',cls:'pen',tasks:['日记','影评','自媒体','日程设计']},
+  'mind':{name:'🧠 智识进阶',cls:'mind',tasks:['普通话','英语','韩语','日语','阅读','专业书','艺术理','心理学']},
+  'energy':{name:'🌿 生命能量',cls:'energy',tasks:['体重管理','运动','朋友聚会','美甲','散步']},
+  'fun':{name:'🎮 灵魂逸趣',cls:'fun',tasks:['化妆','丙烯画画','毛笔字','数字油画','电影','电视剧','影视']}
 };
 
 // 健康人生归入生命能量标签
@@ -1548,11 +1578,11 @@ function drawHealthChart(ws){
 // 第4条：🏆 荣誉墙 = 上半「徽章墙」（隐形格子 + 符号徽章，未解锁显示 ?🔒）
 //               + 下半「进阶路线」（保留原 🌳 树形图）。两套卡片彼此分开。
 const BADGE_ICONS={
-  '做菜':'🥣','拖地':'🧹','擦家具':'🪑','照顾宠物':'🐾','散步':'🚶','运动':'🏃',
-  '写日记':'📔','写影评':'🎭','影视自媒体':'📱','日程设计':'📅',
-  '普通话':'🗣️','英语':'🇬🇧','韩语':'🇰🇷','日语':'🈶','阅读名著':'📖','电影专业书':'🎬','艺术理论书':'🎨','心理学书':'🧠',
+  '做菜':'🥣','拖地':'🧹','家具':'🪑','宠物':'🐾','散步':'🚶','运动':'🏃',
+  '写日记':'📔','写影评':'🎭','自媒体':'📱','日程设计':'📅',
+  '普通话':'🗣️','英语':'🔠','韩语':'🥘','日语':'⛩️','阅读':'📖','专业书':'🎬','艺术':'🎨','心理学':'🧠',
   '体重管理':'⚖️','朋友聚会':'🎉','美甲':'💅','化妆':'💄',
-  '丙烯画画':'🎨','毛笔字':'🖌️','数字油画':'🖼️','电影':'🎬','看电视剧':'📺'
+  '丙烯画画':'✏️','毛笔字':'🖌️','数字油画':'🖼️','电影':'🎬','看电视剧':'📺'
 };
 function badgeIcon(name){return BADGE_ICONS[name]||'🔹'}
 
@@ -1735,7 +1765,7 @@ function renderTimeline(page){
     <div class="ci-row">
       <span class="ci-name" style="flex:1">${esc(f.name)} <span style="font-size:11px;color:var(--accent)">今日 ${fragTodayCount(f)}</span></span>
       <input class="ci-input" placeholder="快速记一条…" onchange="setExtra(${i},this.value);this.value=''">
-    </div>`).join('') || '<div class="empty" style="padding:10px">还没有碎片字段，去「📋 每日碎片」添加。</div>';
+    </div>`).join('') || '<div class="empty" style="padding:10px">还没有碎片字段，去「📋 习惯记录」添加。</div>';
   // —— 时间线卡片流（第10条）——
   let rows=(d.timeline||[]).map((r,i)=>`
     <div class="tl-card ${r.achievement?'has-achv':''}">
@@ -1761,7 +1791,7 @@ function renderTimeline(page){
       ${sideRows}
     </div>
     <div class="ci-block">
-      <div class="ci-title">📋 每日碎片 · 习惯记录（不影响主线完成率）</div>
+      <div class="ci-title">📋 习惯记录 ·（不影响主线完成率）</div>
       ${fragRows}
     </div>
   </div>
@@ -1782,7 +1812,7 @@ function renderUniverse(page){
     var tabs=[
       ['main','🎯 主线计划',renderUniverse_main],
       ['side','🌱 每日支线',renderUniverse_side],
-      ['frag','📋 每日碎片',renderUniverse_frag]
+      ['frag','📋 习惯记录',renderUniverse_frag]
     ];
     var cur=null;
     for(var ti=0;ti<tabs.length;ti++){ if(tabs[ti][0]===tab){ cur=tabs[ti]; break; } }
@@ -1800,7 +1830,7 @@ function renderUniverse(page){
       : '<div class="lock-banner" style="margin-bottom:14px;background:rgba(143,174,138,.18);border-color:rgba(143,174,138,.5)">🔓 周期外 · 当前可自由编辑 / 增删任务（开启新周期后将自动锁定）</div>';
     page.innerHTML=
       '<div class="page-title">🎮 任务面板</div>'+
-      '<div class="page-desc">主线计划 · 每日支线 · 每日碎片，三个板块各自独立管理，互不影响。</div>'+
+      '<div class="page-desc">主线计划 · 每日支线 · 习惯记录，三个板块各自独立管理，互不影响。</div>'+
       lockBar+
       '<div class="uni-tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">'+btns+'</div>'+
       '<div class="card" id="manageArea">'+
@@ -1851,28 +1881,85 @@ function renderUniverse_side(){
   }
   return out||'<div class="empty" style="padding:10px">还没有支线，点击下方添加。</div>';
 }
+/* ════════════════════════════════════════════════════════════════
+   📋 习惯记录 · 按日期分组 + 折叠 + 跨天封存
+   - 每条记录自动带完整时间戳（YYYY-MM-DD HH:MM）
+   - 当天写的 = 可编辑/可删除；跨天后自动封存 → 🔒 只读
+   - 按日期分组，默认折叠（点击展开），新的在上面
+════════════════════════════════════════════════════════════════ */
+// 获取某条记录所属的日期（优先用 _date 字段，兼容旧数据）
+function logDate(l){return l._date||todayStr()}
+// 判断某条记录是否已封存（日期 < 今天）
+function isLogSealed(l){return logDate(l)<todayStr()}
+// 按日期分组，返回 [{date, logs:[...]}]，日期从新到旧
+function groupLogsByDate(logs){
+  var groups={};
+  for(var i=0;i<logs.length;i++){
+    var d=logDate(logs[i]);
+    if(!groups[d])groups[d]=[];
+    groups[d].push(logs[i]);
+  }
+  var dates=Object.keys(groups).sort(function(a,b){return a>b?-1:1}); // 从新到旧
+  return dates.map(function(d){
+    // 每组内也从新到旧
+    var arr=groups[d].slice().sort(function(a,b){
+      var ta=(a.time||'00:00'), tb=(b.time||'00:00');
+      return ta>tb?-1:1;
+    });
+    return {date:d, logs:arr};
+  });
+}
+
 function renderUniverse_frag(){
   var locked=isLocked();var out='';
   for(var i=0;i<DB.extraFields.length;i++){
     var f=DB.extraFields[i];
-    var logs=(f.logs||[]).slice().reverse();   // 从新到旧
+    var logs=(f.logs||[]);
+    var groups=groupLogsByDate(logs);
     var todayN=fragTodayCount(f), totalN=fragTotalCount(f);
-    var logHtml=logs.map(function(l,idx){
-      var realIdx=(f.logs.length-1)-idx;   // 对应原数组下标（用于删除）
-      return '<div class="frag-log">'+
-        '<button class="f-del" onclick="delFragLog('+i+','+realIdx+')" title="删除这条">🗑️</button>'+
-        '<div class="f-time">'+(l.time||'--:--')+'</div>'+
-        '<div class="f-text">'+esc(l.text||'')+'</div>'+
-        (l.feel?'<div class="f-feel">💭 '+esc(l.feel)+'</div>':'')+
-      '</div>';
+
+    // —— 渲染每个日期分组（折叠卡片）——
+    var groupHtml=groups.map(function(grp,gi){
+      var isToday=(grp.date===todayStr());
+      var sealed=!isToday; // 非今天的全部封存
+      var dateLabel=isToday?'今天':grp.date;
+      var countBadge=grp.logs.length+'条';
+      var sealIcon=sealed?'🔒 已封存':'📝 当日可编辑';
+      var sealClass=sealed?'frag-group-sealed':'frag-group-today';
+
+      var logHtml=grp.logs.map(function(l){
+        // realIdx：在原数组中的下标（用于删除）
+        var realIdx=f.logs.indexOf(l);
+        // 只有"当天的"才可以删除
+        var canDelete=isToday && !locked;
+        return '<div class="frag-log '+(sealed?'frag-log-sealed':'')+'">'+
+          (canDelete?'<button class="f-del" onclick="delFragLog('+i+','+realIdx+')" title="删除这条">🗑️</button>':'<span class="f-del-placeholder"></span>')+
+          '<div class="f-time">'+(l.time||'--:--')+'</div>'+
+          '<div class="f-text">'+esc(l.text||'')+'</div>'+
+          (l.feel?'<div class="f-feel">💭 '+esc(l.feel)+'</div>':'')+
+        '</div>';
+      }).join('');
+
+      // 默认：今天展开，历史折叠
+      var defaultOpen=isToday?' open':'';
+      return '<details class="frag-group '+sealClass+defaultOpen+'" data-group="'+grp.date+'">'+
+        '<summary class="frag-group-header">'+
+          '<span class="frag-group-date">📅 '+esc(dateLabel)+'</span>'+
+          '<span class="frag-group-count">'+countBadge+'</span>'+
+          '<span class="frag-group-seal">'+sealIcon+'</span>'+
+          '<span class="frag-group-arrow">▾</span>'+
+        '</summary>'+
+        '<div class="frag-group-body">'+logHtml+'</div>'+
+      '</details>';
     }).join('');
+
     out+='<div class="frag-card">'+
       '<div class="frag-head">'+
-        '<input class="f-name" value="'+esc(f.name)+'" '+(locked?'readonly':'')+' onchange="renameExtra('+i+',this.value)" placeholder="碎片名称">'+
+        '<input class="f-name" value="'+esc(f.name)+'" '+(locked?'readonly':'')+' onchange="renameExtra('+i+',this.value)" placeholder="习惯名称">'+
         '<span class="frag-count">今日 <b>'+todayN+'</b> · 总计 <span class="total">'+totalN+'</span></span>'+
-        (locked?'':'<button class="q-del" onclick="delExtra('+i+')" title="删除此碎片">🗑️</button>')+
+        (locked?'':'<button class="q-del" onclick="delExtra('+i+')" title="删除此习惯">🗑️</button>')+
       '</div>'+
-      '<div class="frag-logs">'+(logHtml||'<div class="frag-empty">还没有记录，在下方添加第一条 ✍️</div>')+'</div>'+
+      '<div class="frag-groups">'+(groupHtml||'<div class="frag-empty">还没有记录，在下方添加第一条 ✍️</div>')+'</div>'+
       (locked?'':'<div class="frag-add">'+
         '<div class="f-row">'+
           '<input class="f-time-input" type="text" value="'+nowHM()+'" id="fragTime'+i+'" placeholder="HH:MM">'+
@@ -1921,9 +2008,49 @@ function startCycle(){
   snapshot();save();render();
 }
 function endCycle(){
-  if(!confirm('确定结算此周期？结算后将计为【成功完成】1个周期，Cycle 编号 +1，当前周期天数清空开始下一个。\n\n注意：强制删除/清除数据导致的失败不会计入统计。'))return;
+  if(!confirm('确定结算此周期？\n\n结算后将：\n① 计为【成功完成】1个周期，Cycle 编号 +1\n② 当前周期的所有记录自动封存归档（不可再改，可在「📜 时光回溯」查看）\n③ 主线/支线/碎片全部清空，从零开始新赛季 ✨\n\n注意：强制删除/清除数据导致的失败不会计入统计。'))return;
+
+  // —— ① 封存归档：把当前 10 天的 records 打包存到 cycleArchive ——
+  const cycleNo=(DB.successfulCycles||0)+1;
+  const cycleStart=DB.cycle.startDate;
+  const cycleDays=Object.keys(DB.records).filter(d=>d>=cycleStart).sort();
+  DB.cycleArchive=DB.cycleArchive||[];
+  DB.cycleArchive.push({
+    no:cycleNo,
+    startDate:cycleStart,
+    endDate:todayStr(),
+    days:cycleDays,
+    mainQuests:JSON.parse(JSON.stringify(DB.mainQuests)),
+    sideQuests:JSON.parse(JSON.stringify(DB.sideQuests)),
+    extraFields:JSON.parse(JSON.stringify(DB.extraFields)),
+    progression:JSON.parse(JSON.stringify(DB.progression||{})),
+    summary:null, // 由 runCycleSummary 填充
+  });
+
+  // —— ② 赛季清空：主线/支线/碎片全部重置为默认值，从零开始 ——
+  DB.mainQuests=defaultDB().mainQuests.map((q,idx)=>({...q,id:'M'+(idx+1)}));
+  DB.sideQuests=defaultDB().sideQuests.map((q,idx)=>({...q,count:0,locked:false}));
+  DB.extraFields=defaultDB().extraFields.map(f=>({...f,logs:[]}));
+  // 进阶进度也清零
+  DB.progression={};
+  for(const q of DB.mainQuests){
+    DB.progression[q.id]={level:1,tiers:defaultDB().progression[q.id]?.tiers||['初阶','进阶','高阶','大师','宗师','巅峰','传奇']};
+  }
+
+  // —— ③ 清空当前周期 records（已归档，不丢）——
+  if(cycleStart){
+    cycleDays.forEach(d=>{delete DB.records[d]});
+  }
+
+  // —— ④ 重置周期状态 ——
   DB.successfulCycles=(DB.successfulCycles||0)+1;
-  DB.cycle.active=false;restoreSnap();save();render();
+  DB.cycle={active:false,length:10,dayInCycle:0,startDate:null,mainSnap:null,sideSnap:null,extraSnap:null};
+
+  // —— ⑤ 迁移进阶路线：标记赛季重置（成就书保留）
+  DB.correctionLog.push({date:todayStr(),action:'赛季重置',orig:'Cycle '+cycleNo+' 已封存归档',new:'新赛季从零开始'});
+
+  save();render();
+  alert('✅ 第 '+cycleNo+' 周期已封存归档！\n\n📜 旧记录可在「时光回溯」查看\n🎮 新赛季已开始，主线/支线/碎片全部清空，从零出发 ✨');
 }
 
 /* ---- 进阶 ---- */
@@ -2000,7 +2127,7 @@ function renderMatrix(page){
     +'</tbody></table></div>':'<div class="empty" style="padding:16px">还没有支线</div>'}
   </div>
 
-  <div class="card"><h3>📋 习惯记录（每日碎片）</h3>
+  <div class="card"><h3>📋 习惯记录</h3>
     ${DB.extraFields.length?'<div class="matrix-scroll"><table class="matrix"><thead><tr><th class="th-task">碎片 ＼ 天</th>'+days.map((d,idx)=>'<th>D'+(idx+1)+'</th>').join('')+'</tr></thead><tbody>'+
       DB.extraFields.map(function(f){
         var cells=days.map(function(d){
@@ -2059,7 +2186,7 @@ function deleteSide(i){
   DB.sideQuests.splice(i,1);save();render();
 }
 function promote(i){const s=DB.sideQuests[i];DB.mainQuests.push({id:'M'+(DB.mainQuests.length+1),name:s.name,desc:'由支线晋升',locked:false});DB.sideQuests.splice(i,1);save();render()}
-/* ---- 📋 每日碎片（自由记录，不影响计划但计入打卡统计，第3条） ---- */
+/* ---- 📋 习惯记录（自由记录，不影响计划但计入打卡统计，第3条） ---- */
 function renderExtras(page){
   const d=today();
   let html=DB.extraFields.map((f,i)=>{
@@ -2076,9 +2203,9 @@ function renderExtras(page){
     }).join('');
     return '<div class="frag-card">'+
       '<div class="frag-head">'+
-        '<input class="f-name" value="'+esc(f.name)+'" '+(isLocked()?'readonly':'')+' onchange="renameExtra('+i+',this.value)" placeholder="碎片名称（如：上厕所、心情）">'+
+        '<input class="f-name" value="'+esc(f.name)+'" '+(isLocked()?'readonly':'')+' onchange="renameExtra('+i+',this.value)" placeholder="习惯名称（如：玩手机、游戏）">'+
         '<span class="frag-count">今日 <b>'+todayN+'</b> · 总计 <span class="total">'+totalN+'</span></span>'+
-        (isLocked()?'':'<button class="q-del" onclick="delExtra('+i+')" title="删除此碎片">🗑️</button>')+
+        (isLocked()?'':'<button class="q-del" onclick="delExtra('+i+')" title="删除此习惯">🗑️</button>')+
       '</div>'+
       '<div class="frag-logs">'+(logHtml||'<div class="frag-empty">还没有记录，在下方添加第一条 ✍️</div>')+'</div>'+
       (isLocked?'':'<div class="frag-add">'+
@@ -2091,11 +2218,11 @@ function renderExtras(page){
       '</div>')+
     '</div>';
   }).join('');
-  page.innerHTML=`<div class="page-title">📋 每日碎片</div>
+  page.innerHTML=`<div class="page-title">📋 习惯记录</div>
   <div class="card">
     <div class="page-desc" style="margin-bottom:12px">上厕所、心情、灵感…每次记录「<b>时间 + 我做了什么 + 感受</b>」，按时间从新到旧排列。<b>今日 X 次 · 总计 N 次</b>帮你觉察习惯、截断坏习惯。不影响主线完成率，但计入打卡统计。</div>
-    ${html||'<div class="empty">还没有碎片字段</div>'}
-    ${isLocked()?'':'<button class="btn sm" style="margin-top:12px" onclick="addExtra()">＋ 添加碎片</button>'}
+    ${html||'<div class="empty">还没有习惯字段</div>'}
+    ${isLocked()?'':'<button class="btn sm" style="margin-top:12px" onclick="addExtra()">＋ 添加习惯</button>'}
   </div>`;
 }
 function renameExtra(i,v){const oldN=DB.extraFields[i].name;migrateBookOnRename(oldN,v);DB.extraFields[i].name=v;save();render()}
@@ -2268,7 +2395,7 @@ function runCycleSummary(){
   const html=`
   <div class="summary-box" style="padding:0;overflow:hidden">
     <div style="background:var(--panel-solid);padding:14px 20px;border-bottom:2px solid var(--gold);font-size:16px;font-weight:700;color:var(--accent)">
-      🗺️ 开新地图前总结（近10天）
+      📍 开新地图前总结（近10天）
     </div>
     <div style="padding:18px">
       <div style="margin-bottom:18px">
@@ -2357,7 +2484,33 @@ function renderRetro(page){
     <h3>🎲 随机一天</h3>
     <button class="btn" onclick="randomDay()">翻开过去的某一天</button>
     <div id="randomResult" style="margin-top:14px"></div>
-  </div>`;
+  </div>
+  ${(DB.cycleArchive||[]).length?`
+  <div class="card" style="border-color:var(--gold)">
+    <h3>🗄️ 赛季归档（${DB.cycleArchive.length}个周期）</h3>
+    <div class="page-desc">每个周期结束后，所有记录自动封存于此。可查看但不可修改——那是你真实走过的路。</div>
+    ${DB.cycleArchive.slice().reverse().map(c=>{
+      const dayCount=(c.days||[]).length;
+      return `<details class="cycle-archive-item" style="margin-bottom:8px;border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel-solid)">
+        <summary style="cursor:pointer;font-weight:700;font-size:14px;color:var(--ink)">
+          🏆 第 ${c.no} 周期 · ${esc(c.startDate||'?')} → ${esc(c.endDate||'?')}
+          <span style="float:right;font-size:11px;color:var(--ink-soft)">${dayCount}天 · 点击展开</span>
+        </summary>
+        <div style="margin-top:12px;font-size:13px;line-height:1.8">
+          <div style="font-weight:600;color:var(--accent);margin-bottom:6px">🎯 主线任务（该周期）</div>
+          ${(c.mainQuests||[]).map(q=>{
+            const iconMap={M1:'🌙',M2:'✍️',M3:'⚖️',M4:'🧠',M5:'🧴',M6:'🦷'};
+            const lvl=((c.progression||{})[q.id]||{}).level||1;
+            return `${iconMap[q.id]||'🔹'} ${esc(q.name)} <span style="color:var(--ink-soft)">Lv.${lvl}</span>`;
+          }).join('<br>')}
+          <div style="font-weight:600;color:var(--accent);margin:10px 0 6px">🌱 支线任务</div>
+          ${(c.sideQuests||[]).map(s=>`${esc(s.name)} <span style="color:var(--ink-soft)">×${s.count||0}</span>`).join('、')||'无'}
+          <div style="font-weight:600;color:var(--accent);margin:10px 0 6px">📋 碎片记录数</div>
+          ${(c.extraFields||[]).map(f=>`${esc(f.name)}：${(f.logs||[]).length}条`).join('　')||'无'}
+        </div>
+      </details>`;
+    }).join('')}
+  </div>`:''}`;
   if(weights.length>=2) drawWeightChart(weights,days);
 }
 function drawWeightChart(weights,allDays){
@@ -2397,7 +2550,7 @@ function randomDay(){
 // 8档里程碑定义（天数 → 游戏化名称 + 图标）
 const MILESTONES = [
   {days:7,  icon:'🌱', name:'破土重生日'},
-  {days:10, icon:'🌏', name:'新新世界'},
+  {days:10, icon:'🗺️', name:'新新世界'},
   {days:15, icon:'⚔️', name:'试炼进阶'},
   {days:30, icon:'⛰️', name:'登高望远'},
   {days:45, icon:'🌲', name:'独木成林'},
@@ -2501,35 +2654,143 @@ function runMilestone(n){
 
 /* ---- 定时信箱 ---- */
 function renderLetters(page){
-  page.innerHTML=`
-  <div class="page-title">✉️ 定时信箱</div>
-  <div class="card">
-    <div class="field"><label>写给未来的自己</label><textarea id="letterBody" rows="4" placeholder="想对未来的自己说什么…"></textarea></div>
-    <div class="field"><label>送达日期</label><input type="date" id="letterDate"></div>
-    <button class="btn" onclick="sendLetter()">封存</button>
-  </div>
-  <div id="letterList"></div>`;
+  // 仅在有 page 容器（首次由 render() 驱动）时重建整块骨架；否则只刷新列表
+  if(page){
+    page.innerHTML=`
+    <div class="page-title">✉️ 定时信箱</div>
+    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px">
+      写给未来的一封信。封存后不可更改、不可删除，直到送达那天自动解锁 🌺
+    </p>
+    <div class="card" id="letterComposer">
+      <div class="field"><label>写给未来的自己</label><textarea id="letterBody" rows="4" placeholder="想对未来的自己说什么…"></textarea></div>
+      <div class="field"><label>送达日期</label><input type="date" id="letterDate"></div>
+      <button class="btn" id="sealBtn" type="button">封存</button>
+    </div>
+    <div id="letterList"></div>`;
+    // 默认送达日期 = 明天
+    const dt=$('#letterDate'); if(dt){ const d=new Date();d.setDate(d.getDate()+1); dt.value=dateKey(d); }
+    // 【关键修复】用事件监听代替内联 onclick，彻底避免重绘竞态导致"点了没反应"
+    const btn=$('#sealBtn');
+    if(btn){ btn.onclick=sendLetter; }
+  }
   renderLetterList();
 }
+
 function sendLetter(){
-  const body=$('#letterBody').value.trim(),date=$('#letterDate').value;
-  if(!body||!date)return alert('写点内容并选个日期吧');
-  DB.letters.push({id:Date.now(),body,date,sent:false});
-  save();renderLetters();
+  const bodyEl=$('#letterBody'), dateEl=$('#letterDate');
+  const body=bodyEl?bodyEl.value.trim():'', date=dateEl?dateEl.value:'';
+  if(!body||!date){ alert('写点内容并选个日期吧'); return; }
+  if(date<todayStr()){ alert('送达日期不能选过去，写给未来的自己嘛 💐'); if(dateEl)dateEl.focus(); return; }
+  // 读值、push、存档 —— 全程不触碰输入框，避免重绘导致内容丢失
+  DB.letters.push({id:Date.now(),body,date,sent:false,createdAt:todayStr()});
+  try{ save(); }catch(e){ alert('存档失败：可能是浏览器隐私模式或存储空间已满'); return; }
+  // 成功后仅清空输入 + 局部刷新列表（不再整块重绘）
+  if(bodyEl)bodyEl.value='';
+  if(dateEl){ const d=new Date();d.setDate(d.getDate()+1); dateEl.value=dateKey(d); }
+  renderLetterList();
+  // 明确成功反馈
+  const btn=$('#sealBtn'); if(btn){ btn.textContent='✓ 已封存'; btn.style.background='var(--good)';
+    setTimeout(()=>{ if(btn){btn.textContent='封存';btn.style.background='';} },900); }
 }
+
 function renderLetterList(){
-  const box=$('#letterList');if(!box)return;
+  const box=$('#letterList'); if(!box)return;
   const today=todayStr();
-  box.innerHTML=DB.letters.map(l=>{
-    const delivered=l.date<=today;
-    return `<div class="card ${delivered?'':''}>
-      <div style="font-size:12px;color:var(--ink-soft)">📅 ${l.date} ${delivered?'<span class="pill g">已送达</span>':'<span class="pill b">未送达</span>'}</div>
-      <div style="margin-top:8px;white-space:pre-wrap">${esc(l.body)}</div>
-      ${delivered?'':`<button class="mini-btn danger" onclick="delLetter(${l.id})">删除</button>`}
+  // 送达日期从近到远；未送达在前
+  const all=[...DB.letters].sort((a,b)=>(a.date>b.date?1:-1));
+  const pending=all.filter(l=>l.date>today);   // 未送达：锁定
+  const arrived=all.filter(l=>l.date<=today);  // 已送达：解锁
+
+  const renderCard=(l,locked)=>{
+    const daysLeft=diffDays(today,l.date);
+    // 未送达：只显示密封信封占位，完全不暴露内容（时间胶囊的神秘感）
+    if(locked){
+      return `<div class="card letter-sealed" style="text-align:center;padding:24px 18px;cursor:pointer" data-preview="${l.id}">
+        <div style="font-size:42px;margin-bottom:10px;animation:floaty 3s ease-in-out infinite">✉️</div>
+        <div style="font-size:14px;font-weight:700;color:var(--ink)">一封写给未来的信</div>
+        <div style="font-size:12px;color:var(--ink-soft);margin-top:6px">
+          📅 送达日期：${esc(l.date)}
+        </div>
+        <div style="font-size:12px;color:var(--accent);margin-top:4px">
+          🔒 距离揭晓还有 <b>${daysLeft}</b> 天
+        </div>
+        <div style="font-size:11px;color:var(--ink-soft);margin-top:10px;padding-top:8px;border-top:1px dashed var(--line)">
+          「内容已封存，送达前不可查看」<br>
+          封存于 ${esc(l.createdAt||'-')}
+        </div>
+      </div>`;
+    }
+    // 已送达：完整展示内容
+    return `<div class="card letter-opened">
+      <div style="font-size:12px;color:var(--ink-soft)">
+        📅 送达 ${esc(l.date)}
+        <span class="pill g">已送达 · 已解锁</span>
+        <span style="float:right;color:var(--accent)">封存于 ${esc(l.createdAt||'-')}</span>
+      </div>
+      <div style="margin-top:10px;padding:12px;background:rgba(192,161,107,.08);border-radius:8px;border-left:3px solid var(--gold)">
+        <div style="font-size:11px;color:var(--gold);font-weight:600;margin-bottom:6px">🕰️ 来自过去的自己 · ${esc(l.createdAt||'-')}</div>
+        <div style="white-space:pre-wrap;font-size:14px;line-height:1.7">${esc(l.body)}</div>
+      </div>
+      <button class="mini-btn danger" data-del="${l.id}" style="margin-top:10px">删除</button>
     </div>`;
-  }).join('');
+  };
+
+  let html='';
+  html+=`<div style="font-size:13px;font-weight:600;margin:16px 0 8px;color:var(--ink)">📬 未送达（${pending.length}）</div>`;
+  html+=pending.length?pending.map(l=>renderCard(l,true)).join(''):'<div style="font-size:13px;color:var(--ink-soft);padding:8px 0">暂无未送达的信 ✨</div>';
+  html+=`<div style="font-size:13px;font-weight:600;margin:16px 0 8px;color:var(--ink)">📭 已送达（${arrived.length}）</div>`;
+  html+=arrived.length?arrived.map(l=>renderCard(l,false)).join(''):'<div style="font-size:13px;color:var(--ink-soft);padding:8px 0">还没有已送达的信，等待时间开启 🕰️</div>';
+
+  box.innerHTML=html;
+
+  // 事件委托：删除按钮 + 密封信件点击预览（不用内联 onclick，避免重绘丢失）
+  box.querySelectorAll('button[data-del]').forEach(btn=>{
+    btn.onclick=()=>{
+      const id=Number(btn.getAttribute('data-del'));
+      const letter=DB.letters.find(l=>l.id===id);
+      if(!letter)return;
+      const ok=confirm(
+        '⚠️ 确定要删除这封信吗？\n\n'+
+        '送达日期：'+letter.date+'\n'+
+        '内容预览：'+(letter.body||'').slice(0,40)+(letter.body.length>40?'…':'')+'\n\n'+
+        '此操作无法撤销。'
+      );
+      if(ok){ delLetter(id); }
+    };
+  });
+
+  // 点击密封的信 → 弹出"时间未到"的神秘提示
+  box.querySelectorAll('.letter-sealed').forEach(el=>{
+    el.onclick=()=>{
+      const id=Number(el.getAttribute('data-preview'));
+      const letter=DB.letters.find(l=>l.id===id);
+      if(!letter)return;
+      const daysLeft=diffDays(todayStr(),letter.date);
+      if(daysLeft<=0){
+        // 刚好到期了 → 刷新列表自动解锁
+        renderLetterList();
+        return;
+      }
+      // 摇晃动画 + 神秘提示
+      el.style.animation='shakeLetter .5s';
+      setTimeout(()=>{el.style.animation=''},500);
+      alert('🔒 这封信还未到送达日期\n\n📅 送达：'+letter.date+'\n⏳ 还有 '+daysLeft+' 天\n\n耐心等待时间的揭晓吧 🌱');
+    };
+  });
 }
-function delLetter(id){DB.letters=DB.letters.filter(l=>l.id!==id);save();renderLetters()}
+
+function delLetter(id){
+  DB.letters=DB.letters.filter(l=>l.id!==id);
+  save();renderLetterList();
+}
+
+// 计算两个 YYYY-MM-DD 之间的天数差（date - today），供倒计时使用
+function diffDays(todayStr,targetStr){
+  const t=new Date(todayStr+'T00:00:00');
+  const d=new Date(targetStr+'T00:00:00');
+  const ms=Math.ceil((d-t)/86400000);
+  return ms<0?0:ms;
+}
 
 /* ---- 额外挑战 ---- */
 function renderChallenges(page){
@@ -2755,24 +3016,32 @@ function closeCorrection(){$('#correctionModal').classList.remove('open')}
     g.addColorStop(0,'#1f3a5f');g.addColorStop(.4,'#2f5d8f');g.addColorStop(.75,'#4a86b5');g.addColorStop(1,'#cfe6ec');
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 
-    // —— 礁石群(左下角，放大3倍：主礁 scale 3.0 + 陪衬) ——
-    function reef(x,y,scale){
-      ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.fillStyle='#3a6b8a';
+   // —— 礁石群：伪随机位置/大小/透明度，每次排布不同 ——
+    function reef(x,y,scale,alpha){
+      ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.globalAlpha=alpha; // 增加透明度，不改其他
+      ctx.fillStyle='#3a6b8a';
       ctx.fillRect(0,12,40,8);ctx.fillRect(4,6,32,8);ctx.fillRect(10,0,20,8);
       ctx.fillStyle='#5a8ba8';ctx.fillRect(10,0,20,3);ctx.restore();
     }
-    reef(W*.05, H*.80, 3.0);reef(W*.22, H*.90, 1.4);reef(W*.005, H*.93, .9);
+    var reefs=[];
+    // 位置集中在左下角区域，大小参考原3.0等，透明度0.5~1.0
+    for(var i=0;i<4;i++){reefs.push({x:.02+rnd()*.30, y:.75+rnd()*.20, s:.8+rnd()*2.5, a:.5+rnd()*.5});}
+    for(var i=0;i<reefs.length;i++){var r=reefs[i];reef(W*r.x, H*r.y, r.s, r.a);}
 
-    // —— 像素帆船(右下角，原始尺寸 scale 1.0) ——
-    function ship(x,y,scale){
-      ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+
+    // —— 像素帆船：伪随机位置/大小/透明度，每次排布不同 ——
+    function ship(x,y,scale,alpha){
+      ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.globalAlpha=alpha; // 增加透明度，不改其他
       ctx.fillStyle='#8B5A2B';ctx.fillRect(8,14,44,6);ctx.fillRect(8,20,44,4);
       ctx.fillStyle='#C0A16B';ctx.fillRect(8,10,44,6);
       ctx.fillStyle='#fff';ctx.fillRect(28,0,3,16);
       ctx.fillRect(31,2,16,10);ctx.fillRect(31,2,3,10);
       ctx.fillStyle='#c08a7a';ctx.fillRect(31,2,16,3);ctx.restore();
     }
-    ship(W*.80, H*.70, 1.0);
+    var ships=[];
+    // 位置集中在右下角区域，大小随机，透明度0.6~1.0
+    for(var i=0;i<2;i++){ships.push({x:.65+rnd()*.30, y:.70+rnd()*.25, s:.5+rnd()*.7, a:.6+rnd()*.4});}
+    for(var i=0;i<ships.length;i++){var s=ships[i];ship(W*s.x, H*s.y, s.s, s.a);}
 
     // —— 云朵：复制「最早的云」(3圆弧)，伪随机位置/大小/透明度，每次排布不同 ——
     function cloud(x,y,scale,alpha){
