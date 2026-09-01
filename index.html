@@ -345,19 +345,19 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 
 /* ============ 徽章墙（荣誉墙·上半） ============ */
 .badge-group{margin-bottom:16px}
-.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
 .badge-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;padding:14px 6px;border:2px dashed var(--line);border-radius:12px;background:var(--panel-solid);
-  transition:.18s;min-height:86px}
+  gap:2px;padding:8px 4px;border:2px dashed var(--line);border-radius:10px;background:var(--panel-solid);
+  transition:.18s;min-height:64px;width:64px;margin:0 auto}
 .badge-cell.locked{border-style:dashed;opacity:.55;filter:grayscale(.7)}
 .badge-cell.on{border-style:solid;border-color:var(--accent);background:rgba(125,158,176,.10)}
 .badge-cell.got{border-style:solid;border-color:var(--gold);background:linear-gradient(135deg,rgba(192,161,107,.16),rgba(255,230,179,.22))}
-.badge-emoji{font-size:26px;line-height:1}
-.badge-cell.locked .badge-emoji{font-size:16px;opacity:.7}
-.badge-name{font-size:11px;color:var(--ink-soft);font-weight:600;letter-spacing:.3px}
+.badge-emoji{font-size:18px;line-height:1}
+.badge-cell.locked .badge-emoji{font-size:13px;opacity:.7}
+.badge-name{font-size:9px;color:var(--ink-soft);font-weight:600;letter-spacing:.2px;line-height:1.15;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .badge-cell.on .badge-name,.badge-cell.got .badge-name{color:var(--ink)}
 .badge-cell.locked .badge-name{color:var(--line)}
-.badge-mark{position:absolute;top:4px;right:6px;font-size:10px;font-weight:700;color:var(--gold)}
+.badge-mark{position:absolute;top:2px;right:3px;font-size:8px;font-weight:700;color:var(--gold);line-height:1}
 .badge-cell.locked .badge-mark{color:var(--line)}
 
 /* ============ 里程碑（8档） ============ */
@@ -420,11 +420,31 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .attr-tier{font-size:11px;color:var(--ink-soft);margin-top:4px}
 .attr-tier .got{color:var(--good);font-weight:700}
 
-/* 徽章墙：属性徽章与成就徽章并列 */
+/* 徽章墙：属性徽章（5列紧凑 mini，与成就徽章等大） */
+.attr-grid{display:grid;grid-template-columns:repeat(5,64px);gap:8px;justify-content:center}
 .badge-cell.attr{border-color:rgba(192,161,107,.5)}
-.badge-cell.attr .badge-emoji{font-size:22px}
+.badge-cell.attr .badge-emoji{font-size:18px}
 .badge-cell.attr.on{background:linear-gradient(135deg,#fff3d6,#ffe6b3)}
 .badge-cell.attr.got{background:linear-gradient(135deg,#ffe6b3,#f5d98a)}
+.attr-mini-meta{font-size:8px;color:var(--ink-soft);line-height:1.2;text-align:center;margin-top:2px}
+.attr-mini-meta b{color:var(--accent);font-family:var(--pixel);font-size:9px}
+
+/* —— 属性徽章清爽版布局（徽章一行 + 进度条组 + 底部汇率一行） —— */
+.attr-summary{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.attr-row{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:10px}
+.attr-row .a-name{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap}
+.attr-row .a_name .ic{font-size:15px}
+.attr-track{position:relative;height:14px;border-radius:8px;background:rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--line)}
+.attr-track>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .5s;border-radius:8px}
+.attr-track .a_tiers{position:absolute;inset:0;display:flex;justify-content:space-between;padding:0 2px;pointer-events:none}
+.attr-track .a_tiers span{width:5px;height:5px;border-radius:50%;background:var(--line);margin-top:4px}
+.attr-row .a_val{font-family:var(--pixel);font-size:11px;color:var(--accent);white-space:nowrap;min-width:44px;text-align:right}
+.attr-row .a_val .dots{font-size:10px;letter-spacing:1px;margin-left:3px}
+.attr-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--ink-soft);
+  padding-top:10px;margin-top:2px;border-top:1px dashed var(--line)}
+.attr-foot .rate{font-weight:700;color:var(--accent)}
+.attr-foot .money{font-family:var(--pixel);font-size:14px;color:var(--gold);font-weight:700}
+.attr-foot .sep{color:var(--line)}
 
 /* ============ 习惯记录 · 多条例表（时间+内容+感受，从新到旧，计数） ============ */
 .frag-card{background:var(--panel-solid);border:2px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
@@ -543,11 +563,12 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 /* ---------- 属性点定义（5类 × 3档徽章：30/60/100） ---------- */
 const ATTR_DEFS = {
   health:  { icon:'💪', name:'健康', desc:'运动、饮食、作息、睡觉、体重管理、瑜伽、体态' },
-  beauty:  { icon:'✨', name:'美貌', desc:'化妆、护肤、穿搭、面膜、穿搭、戒指、项链、口号、美甲' },
+  beauty:  { icon:'✨', name:'美貌', desc:'化妆、护肤、穿搭、面膜、戒指、项链、美甲' },
   wisdom:  { icon:'🧠', name:'智慧', desc:'阅读、学习、语言、写作、书籍、日语、韩语、英语、辩论' },
   will:    { icon:'🔥', name:'意志', desc:'坚持打卡、早起、完成任务、日记、复盘' },
-  charm:   { icon:'💖', name:'魅力', desc:'社交、心情、画画、朋友、丙烯、练字、普通话、自媒体、兴趣爱好' }
+  charm:   { icon:'💖', name:'魅力', desc:'社交、心情、画画、朋友、丙烯、练字、普通话、自媒体、兴趣' }
 };
+// 注：desc 仅作内部数据保留（导出/调试可见），荣誉墙渲染不再展示，界面保持干净。
 const ATTR_TIERS = [30, 60, 100];   // 每档阈值
 const ATTR_PER_TASK = {             // 每个任务打卡时加哪些属性、各加几点
   '做菜':{health:1,charm:1},  '做饭':{health:1,charm:1}, '运动':{health:2,will:1}, '散步':{health:1,charm:1},
@@ -689,16 +710,19 @@ function onTaskProgress(taskName, kind){
   // 精确判断是否升阶或首次解锁
   const justPromoted = (newTier > 1 && data.count && getTierByCount(data.count-1) < newTier);
   const justFirst = (newTier===1 && data.count===1);
-  // 属性点（打卡1次）
+  // 属性点（打卡1次）—— 始终累计（关系到游戏金，不受开关影响）
   const attrUnlocked = awardAttrs(taskName, 1);
   // 连续打卡≥5天
   const streak = checkStreak(taskName);
+  // —— 徽章点亮规则开关：关闭时，不打亮徽章、不播动画，点数/金钱照常累计 ——
   let reason=null;
-  if(justFirst) reason='🏅 新成就解锁！';
-  if(justPromoted) reason='🌟 成就升阶！';
-  if(attrUnlocked.length){ reason=(reason?reason+' · ':'')+'✨ 属性徽章点亮'; }
-  if(streak>=5 && streak%5===0) reason=(reason?reason+' · ':'')+`🔥 ${streak}天连击！`;
-  if(reason) celebrate(reason);
+  if(DB.badgeAutoLight!==false){
+    if(justFirst) reason='🏅 新成就解锁！';
+    if(justPromoted) reason='🌟 成就升阶！';
+    if(attrUnlocked.length){ reason=(reason?reason+' · ':'')+'✨ 属性徽章点亮'; }
+    if(streak>=5 && streak%5===0) reason=(reason?reason+' · ':'')+`🔥 ${streak}天连击！`;
+    if(reason) celebrate(reason);
+  }
   return achvName;
 }
 
@@ -708,6 +732,7 @@ function onTaskProgress(taskName, kind){
 const $=(s)=>document.querySelector(s);
 const $$=(s)=>document.querySelectorAll(s);
 const STORE_KEY='gamelife_v9';
+const DB_VERSION = 10;  // 存档 schema 版本（每次结构变更 +1）
 const todayStr=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const getDayKey=(offset=0)=>{const d=new Date();d.setDate(d.getDate()+offset);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 
@@ -778,6 +803,7 @@ function defaultDB(){
     healthHistory:[], // {date, weight, food}
     // ═══ 成就系统：5大标签 × 任务 × 7阶级 × 3-4名称 ═══
     achievementBook:{}, // {taskKey: {tier: 已达成阶级 0-6}}
+    badgeAutoLight:true,   // 徽章点亮规则：true=达成阈值自动亮（默认，游戏激励）；false=永不自动亮，点数/金钱照常
   };
 }
 
@@ -798,6 +824,7 @@ function migrateDB(r){
   if(!r.healthCycle||typeof r.healthCycle!=='object') r.healthCycle={active:false,startDate:null,length:10,dayInCycle:0};
   if(!Array.isArray(r.cycleArchive)) r.cycleArchive=[];   // 赛季归档数组
   if(!r.achievementBook||typeof r.achievementBook!=='object') r.achievementBook={};
+  if(r.badgeAutoLight===undefined) r.badgeAutoLight=true;   // 徽章点亮规则开关（默认开启）
   // —— 习惯记录：旧版用 value(字符串) 存单条，迁移为 logs(数组) 支持多条记录 ——
   if(!Array.isArray(r.extraFields)) r.extraFields=def.extraFields;
   r.extraFields.forEach(function(f){
@@ -806,7 +833,7 @@ function migrateDB(r){
     delete f.value;
     if(!f.key) f.key='ex'+(Date.now()+Math.random());
   });
-  r.version=9;
+  r.version=DB_VERSION;   // 当前 schema = 10（新增 badgeAutoLight + 赛季徽章归零）
   // —— 属性点 → 金钱：初始化"已结算基准"，再补齐差额 ——
   if(r._lastAttrTotal===undefined||r._lastAttrTotal===0){
     // 老数据/首次：把当前已有属性点视为"已结算"，避免刷新后重复加钱
@@ -1638,38 +1665,48 @@ function renderHonor(page){
     treeHtml+='<div class="card compact-path"><div style="font-weight:700;margin-bottom:8px">🌱 '+esc(q.name)+' <span style="font-size:11px;font-weight:400;color:var(--ink-soft)">（累计 '+(p._count||0)+' 次）</span></div><div class="path-row">'+tierCells+'</div><div style="font-size:12px;color:var(--accent);margin-top:6px">当前：'+esc(p.tiers[p.level-1]||'—')+'</div></div>';
   }
 
-  // —— 属性徽章墙 ——
+  // —— 属性徽章墙（清爽版：5列徽章一行 + 每条属性一行进度条 + 底部汇率金额一行）——
   DB.attrPoints=DB.attrPoints||{health:0,beauty:0,wisdom:0,will:0,charm:0};
+  const ATTR_ORDER=['health','beauty','wisdom','will','charm'];
+  const tierMax = Math.max.apply(null, ATTR_TIERS); // 100
   let attrWallHtml='<div class="attr-grid">';
-  for(const k of Object.keys(ATTR_DEFS)){
+  for(const k of ATTR_ORDER){
     const def=ATTR_DEFS[k];
     const val=DB.attrPoints[k]||0;
     let tierReached=0;
     ATTR_TIERS.forEach(function(th){ if(val>=th) tierReached++; });
-    const pct=Math.min(100, val);
-    let tiersHtml='';
-    ATTR_TIERS.forEach(function(th, i){
-      const reached = val>=th;
-      tiersHtml += '<span class="'+(reached?'got':'')+'">'+(reached?'●':'○')+'</span> Lv.'+(i+1)+'·'+th;
-    });
     const cellCls = 'badge-cell attr ' + (tierReached>=3 ? 'got' : (tierReached>0 ? 'on' : ''));
     attrWallHtml +=
-      '<div class="'+cellCls+'">' +
+      '<div class="'+cellCls+'" title="'+def.name+' · '+val+' pt（达到 30/60/100 各点亮一档）">' +
         '<div class="badge-emoji">'+def.icon+'</div>' +
-        '<div class="badge-name">'+def.name+'<span style="font-size:11px;color:var(--ink-soft)"> · '+def.desc+'</span></div>' +
-        '<div class="attr-bar"><i style="width:'+pct+'%"></i></div>' +
-        '<div class="badge-mark">'+val+' pt · ¥'+(val*0.1).toFixed(1)+'</div>' +
-        '<div class="attr-tier">'+tiersHtml+'</div>' +
+        '<div class="badge-name">'+def.name+'</div>' +
+        '<div class="attr-mini-meta"><b>'+val+'</b> pt</div>' +
+        '<div class="badge-mark">'+(tierReached>=3?'👑':(tierReached>0?'●'.repeat(tierReached):'○'))+'</div>' +
       '</div>';
   }
-  attrWallHtml+='</div>' +
-    '<div class="card" style="background:linear-gradient(135deg,rgba(192,161,107,.14),rgba(125,158,176,.14))">' +
-      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
-        '<span style="font-size:15px;font-weight:700;color:var(--accent)">💰 属性点 → 游戏金</span>' +
-        '<span style="font-size:13px;color:var(--ink-soft)">每 1 属性点 = ¥'+attrPointRate().toFixed(2)+'（总阶级和 '+totalStageSum()+' 阶）</span>' +
-      '</div>' +
-      '<div style="font-family:var(--pixel);font-size:26px;color:var(--gold);margin-top:8px">¥ '+fmtGold()+' <span style="font-size:11px;color:var(--ink-soft)">(汇率 ¥'+attrPointRate().toFixed(2)+'/点)</span></div>' +
-      '<div style="font-size:12px;color:var(--ink-soft);margin-top:4px">属性点累计 <b>'+totalAttrPoints()+' pt</b>，已自动计入存钱计划余额（¥ '+DB.savings+'）</div>' +
+  // 徽章下方：每条属性一行 = 名称 + 进度条(含30/60/100刻度) + 点数+档位
+  const rows = ATTR_ORDER.map(k=>{
+    const def=ATTR_DEFS[k], val=DB.attrPoints[k]||0;
+    const pct=Math.min(100, val/tierMax*100);
+    let tierReached=0;
+    ATTR_TIERS.forEach(function(th){ if(val>=th) tierReached++; });
+    const dots = ATTR_TIERS.map(th=> val>=th?'●':'○').join('');
+    return '<div class="attr-row">' +
+      '<span class="a-name"><span class="ic">'+def.icon+'</span>'+def.name+'</span>' +
+      '<span class="attr-track"><i style="width:'+pct+'%"></i>' +
+        '<span class="a_tiers"><span></span><span></span><span></span><span></span></span>' +
+      '</span>' +
+      '<span class="a_val">'+val+' pt <span class="dots" style="color:var(--gold)">'+dots+'</span></span>' +
+    '</div>';
+  }).join('');
+  attrWallHtml += '</div>' +
+    '<div class="attr-summary">' + rows + '</div>' +
+    '<div class="attr-foot">' +
+      '<span>💰 余额 <span class="money">¥ '+fmtGold()+'</span></span>' +
+      '<span class="sep">·</span>' +
+      '<span>汇率 <span class="rate">¥'+attrPointRate().toFixed(2)+'/点</span>（总阶级和 '+totalStageSum()+' 阶）</span>' +
+      '<span class="sep">·</span>' +
+      '<span>累计 '+totalAttrPoints()+' pt，已计入存钱计划</span>' +
     '</div>';
 
   // 统计
@@ -1677,7 +1714,7 @@ function renderHonor(page){
   const totalPossible=Object.keys(ACHIEVEMENT_GROUPS).reduce((s,gk)=>s+ACHIEVEMENT_GROUPS[gk].tasks.length*7,0);
   page.innerHTML=`
   <div class="page-title">🏆 荣誉墙</div>
-  <div class="page-desc">进阶路线 + 成就图鉴 融合在此。<span style="color:var(--good)">已解锁阶级：${totalUnlocked} / ${totalPossible}</span> ｜ 未点亮的徽章保持神秘（?🔒），完成即点亮。</div>
+  <div class="page-desc">进阶路线 + 成就图鉴 融合在此。<span style="color:var(--good)">已解锁阶级：${totalUnlocked} / ${totalPossible}</span> ｜ 徽章只在达成阈值后点亮，未点亮的保持神秘（?🔒）。</div>
 
   <div class="card">
     <h3>🎖️ 徽章墙</h3>
@@ -1685,8 +1722,8 @@ function renderHonor(page){
     ${wallHtml}
   </div>
   <div class="card">
-    <h3>💫 属性徽章（健康+1 · 美貌+1 · 智慧+1…）</h3>
-    <div class="page-desc" style="margin-bottom:12px">每次打卡按任务类型累加对应属性，达到 <b>30 / 60 / 100</b> 各点亮一档徽章。</div>
+    <h3>💫 属性徽章</h3>
+    <div class="page-desc" style="margin-bottom:12px">每次打卡按任务类型累加属性，达到 <b>30 / 60 / 100</b> 各点亮一档。徽章只在达成阈值后点亮。</div>
     ${attrWallHtml}
   </div>
 
@@ -2036,6 +2073,9 @@ function endCycle(){
   for(const q of DB.mainQuests){
     DB.progression[q.id]={level:1,tiers:defaultDB().progression[q.id]?.tiers||['初阶','进阶','高阶','大师','宗师','巅峰','传奇']};
   }
+  // —— ②b 属性点与徽章同步清零：旧值已封存进 cycleArchive，新赛季从零点亮 ——
+  DB.attrPoints={health:0,beauty:0,wisdom:0,will:0,charm:0};
+  DB._lastAttrTotal=0;   // 重置「已折算基准」，新赛季的属性点重新折算进余额
 
   // —— ③ 清空当前周期 records（已归档，不丢）——
   if(cycleStart){
@@ -2881,6 +2921,14 @@ function renderSettings(page){
       <input value="${esc(DB.playerName||'南熹玉')}" onchange="setPlayerName(this.value)"></div>
   </div>
   <div class="card">
+    <h3>🏆 徽章点亮规则</h3>
+    <div class="field">
+      <label>达成阈值自动点亮</label>
+      <label class="switch"><input type="checkbox" ${DB.badgeAutoLight!==false?'checked':''} onchange="setBadgeAutoLight(this.checked)"><span class="slider"></span></label>
+    </div>
+    <p style="font-size:12px;color:var(--ink-soft);margin-top:4px">开启（默认）：打卡/属性点达到 30·60·100 时徽章自动点亮并播放动画。<br>关闭：徽章永不自动亮起，保持神秘；点数与游戏金仍照常累计，不影响赚钱。</p>
+  </div>
+  <div class="card">
     <h3>💾 数据备份</h3>
     <p style="font-size:12px;color:var(--ink-soft);margin:0 0 12px">导出会完整保存：<b>个人数据</b>（记录/属性/余额/成就）+ <b>全部自定义配置</b>（主线·支线·碎片的名称与增删、主题、礼物池、愿望等）。导入时两边完全一致。</p>
     <button class="btn" onclick="exportDB()">⬇️ 导出完整备份 (JSON)</button>
@@ -2897,6 +2945,13 @@ function renderSettings(page){
   </div>`;
 }
 function setPlayerName(v){DB.playerName=v.trim()||'南熹玉';save();render()}
+// 徽章点亮规则开关（即时生效，记入修正日志）
+function setBadgeAutoLight(on){
+  const was=DB.badgeAutoLight!==false;
+  DB.badgeAutoLight=!!on;
+  DB.correctionLog.push({date:todayStr(),action:'徽章点亮规则',orig:was?'自动':'锁定',new:on?'自动':'锁定'});
+  save();render();
+}
 function uploadCover(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{DB.theme.cover=ev.target.result;DB.theme.mode='image';save();applyTheme();drawCover()};r.readAsDataURL(f)}
 function setBGMode(m){DB.theme.mode=m;save();applyTheme()}
 function setThemeColor(v,which){DB.theme['color'+which]=v;save();applyTheme()}
@@ -2916,10 +2971,12 @@ function resetRecordsOnly(){
     extraFields:DB.extraFields,progression:DB.progression,rewardRules:DB.rewardRules,
     giftPool:DB.giftPool,weightReward:DB.weightReward,theme:DB.theme,savings:DB.savings,
     wishes:DB.wishes,wishlist:DB.wishlist,startDate:todayStr(),playerName:DB.playerName,
-    successfulCycles:0,cycle:{},achievementBook:{},letters:[],challenges:DB.challenges||[]};
+    successfulCycles:0,cycle:{},achievementBook:{},letters:[],challenges:DB.challenges||[],
+    badgeAutoLight:true};
   DB.records={};DB.archive=[];DB.correctionLog=[];DB.achievementBook={};DB.healthHistory=[];
   DB.timeline=[];DB.sideHistory=[];DB.extraHistory=[];DB.dailyQuoteIndex=0;
   DB._cycleReward=0;DB._limitedReward=0;DB._recordBonus=0;DB._survivalTotal=0;
+  DB.attrPoints={health:0,beauty:0,wisdom:0,will:0,charm:0};DB._lastAttrTotal=0;   // 清空记录时徽章也归零
   Object.assign(DB, keep);
   save();location.reload();
 }
@@ -2931,7 +2988,7 @@ function exportDB(){
   save(); // 先落盘，确保导出的是最新数据
   const payload=JSON.parse(JSON.stringify(DB)); // 深拷贝，避免污染运行时
   payload._meta={
-    schemaVersion:9,
+    schemaVersion:DB_VERSION,
     exportedAt:new Date().toISOString(),
     appName:'游戏人生 · Life is a Game',
     // 字段完整性清单：导入时逐项核对，缺哪个一目了然
@@ -3061,7 +3118,6 @@ function enterGame(){
   $('#cover').style.opacity='0';
   setTimeout(()=>{$('#cover').style.display='none';$('#app').style.display='block';processDailyMoney();render()},500);
 }
-
 
 /* ════════════════════════════════════════════════════════════════
    导航 / 生命周期
