@@ -329,12 +329,6 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .achv-filter button{padding:6px 12px;border:2px solid var(--line);border-radius:8px;font-size:12px;background:var(--panel);transition:.15s}
 .achv-filter button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .achv-group{margin-bottom:18px}
-.achv-group-title{font-size:15px;font-weight:700;margin-bottom:10px;padding:6px 10px;border-radius:8px;color:#fff}
-.achv-group-title.survival{background:linear-gradient(90deg,#8fae8a,#7d9eb0)}
-.achv-group-title.pen{background:linear-gradient(90deg,#7d9eb0,#b8a9b0)}
-.achv-group-title.mind{background:linear-gradient(90deg,#b8a9b0,#c0a16b)}
-.achv-group-title.energy{background:linear-gradient(90deg,#c08a7a,#c0a16b)}
-.achv-group-title.fun{background:linear-gradient(90deg,#b8a9b0,#8fae8a)}
 .achv-task{margin-bottom:10px}
 .achv-task-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}
 .achv-tier-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
@@ -344,19 +338,29 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .achv-tier-names .current{border-bottom:2px solid var(--gold)}
 
 /* ============ 徽章墙（荣誉墙·上半） ============ */
-.badge-group{margin-bottom:16px}
-.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+/* —— 分组折叠（与进阶路线 path-collapsible 风格统一） —— */
+.badge-group{margin-bottom:14px}
+.badge-group-summary{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none;
+  background:var(--panel-solid);border:2px solid var(--line);border-radius:12px;font-size:14px;font-weight:700;color:var(--ink);list-style:none;transition:.15s;margin-bottom:10px}
+.badge-group-summary::-webkit-details-marker{display:none}
+.badge-group-summary:hover{border-color:var(--accent)}
+.badge-group-summary .bgs-name{flex:1;font-weight:700}
+.badge-group-summary .bgs-count{font-size:11px;color:var(--accent);background:rgba(125,158,176,.14);padding:2px 8px;border-radius:8px;white-space:nowrap}
+.badge-group-summary .bgs-lock{font-size:11px;color:var(--gold);font-weight:600}
+.badge-group-summary .bgs-arrow{font-size:12px;color:var(--ink-soft);transition:transform .2s}
+.badge-group[open] .badge-group-summary .bgs-arrow{transform:rotate(180deg)}
+.badge-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 8px;justify-items:center;padding:4px}
 .badge-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;padding:8px 4px;border:2px dashed var(--line);border-radius:10px;background:var(--panel-solid);
   transition:.18s;min-height:64px;width:64px;margin:0 auto}
-.badge-cell.locked{border-style:dashed;opacity:.55;filter:grayscale(.7)}
+.badge-cell.locked{border-style:dashed;opacity:.5;filter:grayscale(.8)}
 .badge-cell.on{border-style:solid;border-color:var(--accent);background:rgba(125,158,176,.10)}
 .badge-cell.got{border-style:solid;border-color:var(--gold);background:linear-gradient(135deg,rgba(192,161,107,.16),rgba(255,230,179,.22))}
 .badge-emoji{font-size:18px;line-height:1}
-.badge-cell.locked .badge-emoji{font-size:13px;opacity:.7}
+.badge-cell.locked .badge-emoji{font-size:14px;opacity:.6}
 .badge-name{font-size:9px;color:var(--ink-soft);font-weight:600;letter-spacing:.2px;line-height:1.15;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .badge-cell.on .badge-name,.badge-cell.got .badge-name{color:var(--ink)}
-.badge-cell.locked .badge-name{color:var(--line)}
+.badge-cell.locked .badge-name{color:var(--line);letter-spacing:0}
 .badge-mark{position:absolute;top:2px;right:3px;font-size:8px;font-weight:700;color:var(--gold);line-height:1}
 .badge-cell.locked .badge-mark{color:var(--line)}
 
@@ -385,13 +389,33 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .ms-icon-locked{filter:grayscale(1);opacity:.4}
 .ms-name{flex:1;font-size:14px;font-weight:700;color:var(--ink)}
 .ms-status{font-size:11px;color:var(--ink-soft)}
-.compact-path .path-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 2px;row-gap:6px}
-.path-node{display:inline-flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border:2px solid var(--line);border-radius:10px;background:var(--panel-solid);transition:.2s;max-width:84px}
-.path-node.reached{border-color:var(--good)}
-.path-node.current{border-color:var(--gold);box-shadow:0 0 8px rgba(192,161,107,.5)}
-.path-emoji{font-size:22px;line-height:1}
+/* ============ 进阶路线 · 神秘化 + 主题序列 + 默认折叠 ============ */
+.path-theme-hint{font-size:12px;color:var(--ink-soft);margin-bottom:10px;line-height:1.6}
+.path-theme-hint b{color:var(--accent)}
+.path-collapsible{margin-bottom:14px}
+.path-summary{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none;
+  background:var(--panel-solid);border:2px solid var(--line);border-radius:12px;font-size:14px;font-weight:700;color:var(--ink);list-style:none;transition:.15s}
+.path-summary::-webkit-details-marker{display:none}
+.path-summary:hover{border-color:var(--accent)}
+.path-summary .ps-name{flex:1;font-weight:700}
+.path-summary .ps-count{font-size:11px;color:var(--accent);background:rgba(125,158,176,.14);padding:2px 8px;border-radius:8px;white-space:nowrap}
+.path-summary .ps-lock{font-size:11px;color:var(--gold);font-weight:600}
+.path-summary .ps-arrow{font-size:12px;color:var(--ink-soft);transition:transform .2s}
+.path-collapsible[open] .path-summary .ps-arrow{transform:rotate(180deg)}
+.path-body{padding:12px 4px 4px}
+.compact-path .path-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;row-gap:8px}
+.path-node{display:inline-flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border:2px solid var(--line);border-radius:10px;background:var(--panel-solid);transition:.25s;min-width:58px;max-width:76px}
+.path-node.reached{border-color:var(--good);background:rgba(143,174,138,.10)}
+.path-node.current{border-color:var(--gold);box-shadow:0 0 10px rgba(192,161,107,.5);transform:scale(1.08)}
+.path-node.locked{opacity:.5;filter:grayscale(.6)}
+.path-node.hidden-node{opacity:.35;border-style:dashed}
+.path-emoji{font-size:20px;line-height:1;transition:.3s}
+.path-node.reached .path-emoji{animation:nodePop .4s ease}
+@keyframes nodePop{0%{transform:scale(.5)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
 .path-lv{font-family:var(--pixel);font-size:8px;color:var(--ink-soft)}
-.path-name{font-size:10px;color:var(--ink);text-align:center;line-height:1.2;word-break:break-all}
+.path-name{font-size:9px;color:var(--ink);text-align:center;line-height:1.15;word-break:break-all;max-width:70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.path-node.hidden-node .path-name{color:var(--line)}
+.path-node.hidden-node .path-emoji{font-size:14px;opacity:.6}
 .path-arrow{color:var(--line);font-size:14px;align-self:center}
 .uni-tabs .mini-btn{padding:7px 14px;border:2px solid var(--line);border-radius:20px;background:var(--panel)}
 .uni-tabs .mini-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -410,6 +434,25 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
   letter-spacing:2px;animation:fxText .3s ease;white-space:nowrap}
 @keyframes fxText{0%{transform:translate(-50%,20px) scale(.6);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
 
+/* —— 泡泡 —— */
+.fx-bubble{position:absolute;bottom:-30px;border-radius:50%;opacity:.8;animation:bubbleRise linear forwards}
+@keyframes bubbleRise{0%{transform:translateY(0) scale(.6);opacity:.8}100%{transform:translateY(-105vh) scale(1.2);opacity:0}}
+/* —— 爱心 —— */
+.fx-heart{position:absolute;bottom:10%;font-size:20px;opacity:.9;animation:heartFloat linear forwards}
+@keyframes heartFloat{0%{transform:translateY(0) scale(.5) rotate(-10deg);opacity:.9}100%{transform:translateY(-80vh) scale(1.3) rotate(15deg);opacity:0}}
+/* —— 星星雨 —— */
+.fx-star{position:absolute;top:-20px;font-size:16px;opacity:.9;animation:starFall linear forwards}
+@keyframes starFall{0%{transform:translateY(0) rotate(0);opacity:.9}100%{transform:translateY(105vh) rotate(360deg);opacity:0}}
+/* —— 雪花 —— */
+.fx-snow{position:absolute;top:-20px;font-size:14px;opacity:.8;animation:snowFall linear forwards}
+@keyframes snowFall{0%{transform:translateY(0) translateX(0);opacity:.8}100%{transform:translateY(105vh) translateX(30px);opacity:0}}
+/* —— 金币雨 —— */
+.fx-coin{position:absolute;top:-24px;font-size:18px;opacity:.95;animation:coinFall linear forwards}
+@keyframes coinFall{0%{transform:translateY(0) rotateY(0);opacity:.95}100%{transform:translateY(105vh) rotateY(720deg);opacity:0}}
+/* —— 屏幕震动 —— */
+@keyframes screenShake{0%,100%{transform:translate(0)}20%{transform:translate(-4px,2px)}40%{transform:translate(4px,-2px)}60%{transform:translate(-3px,-3px)}80%{transform:translate(3px,3px)}}
+body.fx-shake{animation:screenShake .35s ease}
+
 /* ============ 属性点条 ============ */
 .attr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:10px}
 .attr-cell{background:var(--panel-solid);border:2px solid var(--line);border-radius:12px;padding:12px}
@@ -420,28 +463,28 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .attr-tier{font-size:11px;color:var(--ink-soft);margin-top:4px}
 .attr-tier .got{color:var(--good);font-weight:700}
 
-/* 徽章墙：属性徽章（5列紧凑 mini，与成就徽章等大） */
-.attr-grid{display:grid;grid-template-columns:repeat(5,64px);gap:8px;justify-content:center}
-.badge-cell.attr{border-color:rgba(192,161,107,.5)}
-.badge-cell.attr .badge-emoji{font-size:18px}
-.badge-cell.attr.on{background:linear-gradient(135deg,#fff3d6,#ffe6b3)}
-.badge-cell.attr.got{background:linear-gradient(135deg,#ffe6b3,#f5d98a)}
-.attr-mini-meta{font-size:8px;color:var(--ink-soft);line-height:1.2;text-align:center;margin-top:2px}
-.attr-mini-meta b{color:var(--accent);font-family:var(--pixel);font-size:9px}
-
-/* —— 属性徽章清爽版布局（徽章一行 + 进度条组 + 底部汇率一行） —— */
-.attr-summary{margin-top:14px;display:flex;flex-direction:column;gap:9px}
-.attr-row{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:10px}
-.attr-row .a-name{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap}
-.attr-row .a_name .ic{font-size:15px}
-.attr-track{position:relative;height:14px;border-radius:8px;background:rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--line)}
-.attr-track>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .5s;border-radius:8px}
-.attr-track .a_tiers{position:absolute;inset:0;display:flex;justify-content:space-between;padding:0 2px;pointer-events:none}
-.attr-track .a_tiers span{width:5px;height:5px;border-radius:50%;background:var(--line);margin-top:4px}
-.attr-row .a_val{font-family:var(--pixel);font-size:11px;color:var(--accent);white-space:nowrap;min-width:44px;text-align:right}
-.attr-row .a_val .dots{font-size:10px;letter-spacing:1px;margin-left:3px}
+/* 徽章墙：属性徽章 —— 每条属性一个独立卡片行（图标+名称 / 进度条 / 点数档位） */
+.attr-grid{display:none}                       /* 旧 5列徽章行已弃用，改由 .attr-summary 渲染 */
+.badge-cell.attr{display:none}
+.attr-mini-meta{display:none}
+.attr-summary{display:flex;flex-direction:column;gap:14px;padding-top:4px}
+.attr-row{display:grid;grid-template-columns:minmax(0,92px) minmax(0,1fr) auto;align-items:center;gap:14px;min-width:0;
+  padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:2px 2px 0 rgba(90,105,120,.08)}
+@media(max-width:420px){.attr-row{grid-template-columns:minmax(0,76px) minmax(0,1fr) auto;gap:10px;padding:12px 12px}}
+.attr-row .a-name{display:flex;flex-direction:column;align-items:flex-start;gap:3px;font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;line-height:1.1}
+.attr-row .a-name .ic{font-size:24px;line-height:1}
+.attr-track{position:relative;height:16px;border-radius:9px;background:rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--line)}
+.attr-track>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .5s;border-radius:9px}
+.attr-track .a_tiers{position:absolute;inset:0;display:flex;justify-content:space-between;padding:0 3px;pointer-events:none}
+.attr-track .a_tiers span{width:3px;height:10px;border-radius:2px;background:rgba(255,255,255,.9);margin-top:3px}
+.attr-row .a_val{font-family:var(--pixel);font-size:12px;color:var(--accent);white-space:nowrap;text-align:right;line-height:1.15}
+.attr-row .a_val .pt{display:block}
+.attr-row .a_val .dots{display:block;font-size:11px;letter-spacing:1px;margin-top:3px}
+.attr-row.on{border-color:var(--accent);background:rgba(125,158,176,.07)}
+.attr-row.got{border-color:var(--gold);background:linear-gradient(135deg,rgba(192,161,107,.10),rgba(255,230,179,.18))}
+.attr-row.got .a-name,.attr-row.got .a_val,.attr-row.got .a_val .dots{color:var(--gold)}
 .attr-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--ink-soft);
-  padding-top:10px;margin-top:2px;border-top:1px dashed var(--line)}
+  padding-top:12px;margin-top:6px;border-top:1px dashed var(--line)}
 .attr-foot .rate{font-weight:700;color:var(--accent)}
 .attr-foot .money{font-family:var(--pixel);font-size:14px;color:var(--gold);font-weight:700}
 .attr-foot .sep{color:var(--line)}
@@ -490,10 +533,14 @@ input,textarea,select{font-family:inherit;color:var(--ink)}
 .frag-del-placeholder{width:24px;height:24px;flex-shrink:0;display:inline-block}
 
 /* ============ 定时信箱 · 神秘感 ============ */
-.letter-sealed{transition:transform .2s}
+.letter-intro{font-size:13px;color:var(--ink-soft);margin:-8px 0 14px;line-height:1.6}
+.letter-composer{margin-bottom:24px}          /* 编辑卡片 ↓ 与下方列表留出明显间距 */
+#letterList{margin-top:8px}
+#letterList>div{margin-bottom:8px}            /* 分区标题与卡片之间不黏连 */
+.letter-sealed{transition:transform .2s;margin-bottom:12px}
 .letter-sealed:active{transform:scale(.97)}
 @keyframes shakeLetter{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
-.letter-opened{border-left:3px solid var(--gold)}
+.letter-opened{border-left:3px solid var(--gold);margin-bottom:12px}
 
   </style>
 </head>
@@ -570,16 +617,57 @@ const ATTR_DEFS = {
 };
 // 注：desc 仅作内部数据保留（导出/调试可见），荣誉墙渲染不再展示，界面保持干净。
 const ATTR_TIERS = [30, 60, 100];   // 每档阈值
-const ATTR_PER_TASK = {             // 每个任务打卡时加哪些属性、各加几点
-  '做菜':{health:1,charm:1},  '做饭':{health:1,charm:1}, '运动':{health:2,will:1}, '散步':{health:1,charm:1},
-  '拖地':{health:1,will:1}, '擦家具':{health:1,will:1}, '宠物':{charm:2}, '家务':{health:1,charm:1}, 
-  '写日记':{wisdom:1,will:1}, '影评':{wisdom:2}, '自媒体':{wisdom:1,charm:1},
-  '日程设计':{will:2}, '普通话':{wisdom:2}, '英语':{wisdom:2}, '韩语':{wisdom:2},
-  '日语':{wisdom:1}, '阅读':{wisdom:1}, '专业':{wisdom:1},
-  '艺术':{wisdom:1}, '心理学':{wisdom:1}, '体重管理':{health:2,will:1},
-  '朋友':{charm:1}, '美甲':{beauty:2}, '化妆':{beauty:2},
-  '丙烯画画':{charm:2}, '毛笔字':{wisdom:1,charm:1}, '数字油画':{charm:2},
-  '电影':{charm:2}, '看电视剧':{charm:1},'影视':{charm:1}
+const ATTR_PER_TASK = {
+  // 每个任务打卡时加哪些属性、各加几点（未列出的默认 {will:1}）
+  '做菜':{health:1,charm:1},
+  '做饭':{health:1,charm:1},
+  '运动':{health:2,will:1},
+  '散步':{health:1,charm:1},
+  '拖地':{health:1,will:1},
+  '擦家具':{health:1,will:1},
+  '宠物':{charm:2},
+  '家务':{health:1,charm:1},
+  '写日记':{wisdom:1,will:1},
+  '影评':{wisdom:2},
+  '自媒体':{wisdom:1,charm:1},
+  '日程设计':{will:2},
+  '普通话':{wisdom:2},
+  '英语':{wisdom:2},
+  '韩语':{wisdom:2},
+  '日语':{wisdom:1},
+  '阅读':{wisdom:1},
+  '专业':{wisdom:1},
+  '艺术':{wisdom:1},
+  '心理学':{wisdom:1},
+  '体重管理':{health:2,will:1},
+  '朋友':{charm:1},
+  '美甲':{beauty:2},
+  '化妆':{beauty:2},
+  '丙烯画画':{charm:2},
+  '毛笔字':{wisdom:1,charm:1},
+  '数字油画':{charm:2},
+  '电影':{charm:2},
+  '看电视剧':{charm:1},
+  '影视':{charm:1},
+  '整理房间':{health:1,will:1},
+  '早起':{will:2},
+  '喝水':{health:1},
+  '记账':{will:1},
+  '写小说':{wisdom:2},
+  '写诗':{wisdom:1,charm:1},
+  '做手帐':{charm:1,wisdom:1},
+  '写复盘':{wisdom:1,will:1},
+  '翻译':{wisdom:2},
+  '瑜伽':{health:2},
+  '体态':{health:1,charm:1},
+  '泡脚':{health:1},
+  '冥想':{will:2},
+  '作息':{health:1,will:1},
+  '拍照':{charm:2},
+  '唱歌':{charm:1},
+  '乐器':{charm:1,wisdom:1},
+  '手工':{charm:1},
+  '烘焙':{health:1,charm:1},
 };
 function attrGainsFor(taskName){
   return ATTR_PER_TASK[taskName] || {will:1};   // 未列出的默认加意志力
@@ -666,32 +754,119 @@ function checkStreak(taskName){
   return streak;
 }
 
-/* ---------- 庆祝动画：彩纸雨 + 烟花（像素风） ---------- */
-function celebrate(reason){
+/* ---------- 庆祝动画系统：多种彩蛋效果随机触发 ---------- */
+// 效果类型：confetti(彩纸雨) / bubble(泡泡) / heart(爱心) / star(星星雨) / snow(雪花) / coin(金币雨) / firework(烟花)
+// 日常打卡 → 轻量效果（泡泡/星星/爱心，随机一种）
+// 重要阶段（升阶/首次解锁/连击）→ 重量效果（彩纸雨+烟花+屏幕震动，随机组合）
+
+function spawnParticles(layer, type, count){
+  const make=(cls, styleFn)=>{
+    for(let i=0;i<count;i++){
+      const el=document.createElement('span');
+      el.className=cls;
+      styleFn(el, i);
+      layer.appendChild(el);
+    }
+  };
+  switch(type){
+    case 'bubble':
+      make('fx-bubble',(el,i)=>{
+        const size=8+Math.random()*18;
+        el.style.left=Math.random()*100+'vw';
+        el.style.width=size+'px';el.style.height=size+'px';
+        el.style.background=['rgba(125,158,176,.5)','rgba(143,174,138,.5)','rgba(192,161,107,.5)'][i%3];
+        el.style.animationDelay=(Math.random()*1.2)+'s';
+        el.style.animationDuration=(2+Math.random()*2)+'s';
+      });
+      break;
+    case 'heart':
+      make('fx-heart',(el,i)=>{
+        el.textContent=['❤️','💖','💕','💗'][i%4];
+        el.style.left=(10+Math.random()*80)+'vw';
+        el.style.animationDelay=(Math.random()*0.8)+'s';
+        el.style.animationDuration=(1.8+Math.random()*1.5)+'s';
+      });
+      break;
+    case 'star':
+      make('fx-star',(el,i)=>{
+        el.textContent=['⭐','✨','🌟','💫'][i%4];
+        el.style.left=Math.random()*100+'vw';
+        el.style.animationDelay=(Math.random()*0.6)+'s';
+        el.style.animationDuration=(1.6+Math.random()*1.4)+'s';
+      });
+      break;
+    case 'snow':
+      make('fx-snow',(el,i)=>{
+        el.textContent=['❄️','🌨️','💠'][i%3];
+        el.style.left=Math.random()*100+'vw';
+        el.style.animationDelay=(Math.random()*0.8)+'s';
+        el.style.animationDuration=(2.2+Math.random()*1.8)+'s';
+      });
+      break;
+    case 'coin':
+      make('fx-coin',(el,i)=>{
+        el.textContent=['🪙','💰','💵'][i%3];
+        el.style.left=Math.random()*100+'vw';
+        el.style.animationDelay=(Math.random()*0.5)+'s';
+        el.style.animationDuration=(1.8+Math.random()*1.2)+'s';
+      });
+      break;
+    case 'confetti':
+    default:
+      make('confetti',(el,i)=>{
+        const colors=['#c0a16b','#7d9eb0','#8fae8a','#c08a7a','#b8a9b0','#4a86b5'];
+        el.style.left=Math.random()*100+'vw';
+        el.style.background=colors[i%colors.length];
+        el.style.animationDelay=(Math.random()*0.6)+'s';
+        el.style.animationDuration=(1.6+Math.random()*1.2)+'s';
+      });
+      break;
+  }
+}
+
+function celebrate(reason, level){
   if(!reason) reason='升级啦！';
+  level = level || 'normal';  // 'light' = 日常打卡, 'normal' = 默认, 'major' = 重要阶段
   let layer=$('#fxLayer');
   if(!layer){ layer=document.createElement('div'); layer.id='fxLayer'; document.body.appendChild(layer); }
   layer.classList.add('fx-show');
-  // 彩纸雨
-  const colors=['#c0a16b','#7d9eb0','#8fae8a','#c08a7a','#b8a9b0','#4a86b5'];
-  for(let i=0;i<48;i++){
-    const c=document.createElement('span');
-    c.className='confetti';
-    c.style.left=Math.random()*100+'vw';
-    c.style.background=colors[i%colors.length];
-    c.style.animationDelay=(Math.random()*0.6)+'s';
-    c.style.animationDuration=(1.6+Math.random()*1.2)+'s';
-    layer.appendChild(c);
+
+  // —— 根据等级选择效果组合 ——
+  if(level==='major'){
+    // 重要阶段：彩纸雨 + 烟花 + 屏幕震动（不固定，随机组合）
+    const majorEffects=['confetti','star','coin'];
+    const chosen=majorEffects[Math.floor(Math.random()*majorEffects.length)];
+    spawnParticles(layer, chosen, 60);
+    // 烟花
+    for(let i=0;i<6;i++){
+      const f=document.createElement('span');
+      f.className='firework';
+      f.style.left=(15+Math.random()*70)+'vw';
+      f.style.top=(20+Math.random*30||20+Math.random()*30)+'vh';
+      f.style.animationDelay=(i*0.2)+'s';
+      layer.appendChild(f);
+    }
+    // 屏幕震动
+    document.body.classList.add('fx-shake');
+    setTimeout(()=>document.body.classList.remove('fx-shake'), 400);
+  } else if(level==='light'){
+    // 日常打卡：轻量效果，随机一种（不固定）
+    const lightEffects=['bubble','heart','star','snow'];
+    const chosen=lightEffects[Math.floor(Math.random()*lightEffects.length)];
+    spawnParticles(layer, chosen, 20);
+  } else {
+    // 默认：彩纸雨
+    spawnParticles(layer, 'confetti', 48);
+    for(let i=0;i<4;i++){
+      const f=document.createElement('span');
+      f.className='firework';
+      f.style.left=(20+Math.random()*60)+'vw';
+      f.style.top=(25+Math.random()*30)+'vh';
+      f.style.animationDelay=(i*0.18)+'s';
+      layer.appendChild(f);
+    }
   }
-  // 烟花粒子
-  for(let i=0;i<5;i++){
-    const f=document.createElement('span');
-    f.className='firework';
-    f.style.left=(20+Math.random()*60)+'vw';
-    f.style.top=(25+Math.random()*30)+'vh';
-    f.style.animationDelay=(i*0.18)+'s';
-    layer.appendChild(f);
-  }
+
   // 中央文案
   const txt=document.createElement('div');
   txt.className='fx-text'; txt.textContent=reason;
@@ -716,12 +891,18 @@ function onTaskProgress(taskName, kind){
   const streak = checkStreak(taskName);
   // —— 徽章点亮规则开关：关闭时，不打亮徽章、不播动画，点数/金钱照常累计 ——
   let reason=null;
+  let fxLevel='normal';
   if(DB.badgeAutoLight!==false){
-    if(justFirst) reason='🏅 新成就解锁！';
-    if(justPromoted) reason='🌟 成就升阶！';
-    if(attrUnlocked.length){ reason=(reason?reason+' · ':'')+'✨ 属性徽章点亮'; }
-    if(streak>=5 && streak%5===0) reason=(reason?reason+' · ':'')+`🔥 ${streak}天连击！`;
-    if(reason) celebrate(reason);
+    if(justFirst){ reason='🏅 新成就解锁！'; fxLevel='major'; }
+    if(justPromoted){ reason='🌟 成就升阶！'; fxLevel='major'; }
+    if(attrUnlocked.length){ reason=(reason?reason+' · ':'')+'✨ 属性徽章点亮'; if(!justFirst&&!justPromoted) fxLevel='normal'; }
+    if(streak>=5 && streak%5===0){ reason=(reason?reason+' · ':'')+`🔥 ${streak}天连击！`; fxLevel='major'; }
+    // 日常打卡（无任何特殊事件）→ 轻量随机效果，无文案
+    if(!reason){
+      celebrate('', 'light');
+      return achvName;
+    }
+    if(reason) celebrate(reason, fxLevel);
   }
   return achvName;
 }
@@ -980,8 +1161,114 @@ const DAILY_QUOTES=[
 function dailyQuote(dayNo){return DAILY_QUOTES[((dayNo||1)-1)%DAILY_QUOTES.length]}
 
 /* ════════════════════════════════════════════════════════════════
-   🌳 进阶路线
+   🌳 进阶路线 · 主题序列系统
+   每条主线按"关键词匹配"自动分配一组生物链/植物生长序列（6-7阶）
+   点亮瞬间随机选定一条序列，之后固定，直到重置数据才替换
 ════════════════════════════════════════════════════════════════ */
+
+// —— 主题序列库（每条 = 一组完整的进化链，7阶）——
+const PATH_THEMES = {
+  'writing': [  // 写作/记录
+    ['🪶','🪹','🪺','🥚','🐣','🐦⬛','🦅'],
+    ['🐦','🕊️','🦜','🦩','🦤','🦚','🐦‍🔥'],
+    ['🦡','🐿️','🦨','🦫','🦦','🦥','🐈'],
+  ],
+  'fitness': [  // 减重/运动
+    ['🏃','🚵','🏌️','🧗','🏄','🏊','🏂'],
+    ['🪀','🏉','⚾','🥎','🏐','🏀','⚽'],
+    ['🎳','🏓','🎾','🏏','🥍','🏑','🏅'],
+  ],
+  'beauty': [  // 护肤/美貌/状态
+    ['💛','🧡','🩷','💗','💓','💖','💝'],
+    ['🌼','🌸','🌺','🌷','🪻','🌹','💐'],
+    ['🍃','🌱','☘️','🍀','🌿','🌻','🏵️'],
+  ],
+  'wisdom': [  // 学习/智慧/思维
+    ['🌰','🌱','🌿','🪴','🌳','🏵️','🍎'],
+    ['🚶','🛴','🚲','🛵','🏍️','🚍','🚘'],
+    ['🚂','🚆','🚇','🚉','✈️','🚁','🚀'],
+  ],
+  'routine': [  // 习惯养成
+    ['💧','💦','🌫','☁️','🌧️','🌥️','🌞'],
+    ['💧','💦','🌊','☃️','🐧','🦭','🐻‍❄️'],
+    ['🦔','🐇','🐒','🦧','🐆','🐅','🦁'],
+  ],
+  'willpower': [  // 戒断/意志
+    ['❤️‍🔥','🔥','🧨','💣','🎇','🎆','🌋'],
+    ['🐜','🕷️','🪲','🦎','🐊','🦕','🦖'],
+  ],
+  'art': [  // 绘画/艺术
+    ['🎵','🎶','🎼','🎹','🎻','🎺','🪉'],
+    ['🥁','🪇','🪘','🪈','🎺','🎸','🪗'],
+    ['🖍️','📜','🖌️','🎨','🖼️','🎭','🏛️'],
+  ],
+  'money': [  // 理财/钱
+    ['💲','💸','🪙','💰','💵','💳','💎'],
+    ['🪙','💷','👛','🛒','🛍️','🏧','🏦'],
+  ],
+  'reading': [  // 书籍/阅读
+    ['📄','📑','📒','📔','📓','📕','📚'],
+    ['🖋️','📃','🗒️','🔖','📜','📖','🎒'],
+  ],
+  'default': [  // 其他默认
+    ['🍃','🌱','🌿','🪴','🌸','🌺','💐'],
+    ['🐚','🦐','🦀','🦞','🐠','🐬','🐳'],
+    ['🦠','🪼','🐟','🐡','🐬','🐋','🦈'],
+    ['🐐','🐄','🐃','🐂','🦬','🦏','🐘'],
+  ],
+};
+
+// —— 关键词 → 主题映射 ——
+const PATH_KEYWORDS = {
+  'writing': ['写','日记','小说','诗','手帐','复盘','翻译','影评','记录','笔记','文章','博客'],
+  'fitness': ['运动','跑步','健身','减重','体重','瑜伽','体态','跳舞','球','游泳','骑行','走路','散步','拉伸'],
+  'beauty': ['护肤','化妆','美貌','美甲','穿搭','面膜','颜值','形象','打扮','发型','护肤','保养'],
+  'wisdom': ['学习','英语','日语','韩语','语言','专业','知识','思考','研究','考试','学历','逻辑','编程'],
+  'routine': ['早起','作息','睡觉','早睡','习惯','喝水','整理','拖地','做饭','做菜','家务','规律','日程'],
+  'willpower': ['戒','断','坚持','早起','完成','自律','意志','节制','拒绝','抵抗','控制'],
+  'art': ['画','艺术','丙烯','毛笔','油画','数字油画','设计','摄影','拍照','音乐','乐器','唱歌','手工','创作'],
+  'money': ['理财','存钱','记账','投资','收入','省钱','预算','消费','赚钱','经济','基金'],
+  'reading': ['阅读','读书','名著','看书','书单','文学'],
+};
+
+// —— 为一条主线匹配主题 key ——
+function matchPathTheme(questName){
+  const name = (questName||'').toLowerCase();
+  for(const [theme, keywords] of Object.entries(PATH_KEYWORDS)){
+    for(const kw of keywords){
+      if(name.includes(kw.toLowerCase())) return theme;
+    }
+  }
+  return 'default';
+}
+
+// —— 随机选一条序列（点亮瞬间固定）——
+function getQuestThemeSequence(questId, questName){
+  const prog = DB.progression[questId] || (DB.progression[questId]={});
+  if(prog._seq) return prog._seq;  // 已固定，直接返回
+  const theme = matchPathTheme(questName);
+  const options = PATH_THEMES[theme] || PATH_THEMES['default'];
+  // 随机选一条（2-3个选择中随机）
+  const seq = pick(options).slice(0, 7);
+  prog._seq = seq;
+  prog._theme = theme;
+  return seq;
+}
+
+// —— 获取某阶应显示的 emoji（未解锁 = 🔒 隐藏）——
+function getPathEmoji(questId, tierIndex, reached){
+  if(reached) return getQuestThemeSequence(questId, '')[tierIndex] || '·';
+  return '🔒';
+}
+
+// —— 获取某阶应显示的名称（未解锁 = ? 隐藏）——
+function getPathName(questId, tierIndex, reached, totalTiers){
+  if(reached) return 'Lv.'+(tierIndex+1);
+  // 当前阶之后的全部隐藏
+  return '?';
+}
+
+// —— 兼容旧函数名（render 中用到的）——
 function tierType(idx){
   if(idx<=1) return 'trunk';
   if(idx===2) return 'leaf';
@@ -989,8 +1276,9 @@ function tierType(idx){
   return 'flower';
 }
 function treeEmoji(tier,reached){
+  // 不再直接使用（改由 getPathEmoji 控制），保留兼容
   const map={trunk:'🪵',leaf:'🍃',flower:'🌸'};
-  return reached?map[tier]:'·';
+  return reached?map[tier]:'🔒';
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1104,8 +1392,11 @@ const ACHIEVEMENT_WORDS = {
       4:['家常硬菜','私房手艺','灶台常客'],
       5:['小灶学徒','调味达人','火候掌控者'],
       6:['私房大厨','烟火诗人','家常主厨'],
-      7:['厨神降世','灶神附体','料理之神']
-    },
+      7:['厨神降世','灶神附体','料理之神'],
+      '整理房间':{1:["整洁新手", "整理初体验"], 3:["收纳达人"], 5:["断舍离高手"], 7:["空间魔法师"]},
+      '早起':{1:["晨型人"], 3:["早起冠军"], 5:["黎明掌控者"], 7:["时间主人"]},
+      '喝水':{1:["补水新手"], 3:["喝水达人"], 7:["水润之星"]},
+      '记账':{1:["记账新手"], 3:["理财学徒"], 5:["财务管家"], 7:["财富掌控者"]}},
     '拖地':{
       1:['光洁初体验','地板初扫','清洁觉醒'],
       2:['再拖一次','地板会反光','又亮了'],
@@ -1162,7 +1453,12 @@ const ACHIEVEMENT_WORDS = {
       5:['时光史官','日记大师','文字收藏家'],
       6:['时光传奇','日记宗师','岁月编织者'],
       7:['永恒记录者','时光之神','文字不朽']
-    },
+    ,
+      '写小说':{1:["故事新手"], 3:["叙事者"], 5:["小说家"], 7:["文字魔术师"]},
+      '写诗':{1:["诗意萌芽"], 3:["抒情诗人"], 7:["灵魂诗人"]},
+      '做手帐':{1:["手帐新手"], 3:["拼贴达人"], 7:["视觉诗人"]},
+      '写复盘':{1:["复盘新手"], 3:["反思者"], 5:["自省大师"], 7:["认知升级者"]},
+      '翻译':{1:["译界新手"], 3:["双语者"], 5:["语言桥梁"], 7:["译坛宗师"]}},
     '写影评':{
       1:['独立见解·首鸣','影评处女作','第一评'],
       2:['笔锋渐利','又评一部','视角再开'],
@@ -1294,7 +1590,12 @@ const ACHIEVEMENT_WORDS = {
       5:['妆容大师·颜值巅峰','美妆达人','妆容艺术家'],
       6:['美妆之神','颜值宗师','化妆传奇'],
       7:['永恒之美','颜值主宰','美神降临']
-    },
+    ,
+      '瑜伽':{1:["瑜伽新手"], 3:["瑜伽达人"], 5:["瑜伽导师"], 7:["身心合一"]},
+      '体态':{1:["体态新手"], 3:["体态优雅"], 7:["气质女神"]},
+      '泡脚':{1:["养生新手"], 3:["泡脚达人"], 7:["养生大师"]},
+      '冥想':{1:["冥想新手"], 3:["静心者"], 5:["内在觉者"], 7:["空明之境"]},
+      '作息':{1:["作息新手"], 3:["规律生活"], 5:["生物钟掌控"], 7:["自律之神"]}},
     '美甲':{
       1:['指尖觉醒','初次尝试','第一甲'],
       2:['再做一个','指尖有戏','又涂一层'],
@@ -1333,7 +1634,12 @@ const ACHIEVEMENT_WORDS = {
       5:['丙烯画师·色彩诗人','画意大师','色彩诗人'],
       6:['丹青圣手','画艺之神','色彩宗师'],
       7:['永恒画布','色彩主宰','艺术不朽']
-    },
+    ,
+      '拍照':{1:["摄影新手"], 3:["光影捕手"], 5:["摄影达人"], 7:["视觉艺术家"]},
+      '唱歌':{1:["歌者新手"], 3:["动人歌喉"], 7:["灵魂歌者"]},
+      '乐器':{1:["乐手新手"], 3:["乐器达人"], 7:["音乐诗人"]},
+      '手工':{1:["巧手新手"], 3:["匠心手作"], 7:["手工大师"]},
+      '烘焙':{1:["烘焙新手"], 3:["甜点达人"], 5:["烘焙师"], 7:["味觉魔法师"]}},
     '毛笔字':{
       1:['书法之路·落笔生花','执笔萌新','第一笔'],
       2:['笔锋渐稳','又临一遍','再写一次'],
@@ -1357,11 +1663,11 @@ const ACHIEVEMENT_WORDS = {
 
 // 标签元信息（第2条：按南熹玉指定重新分配）
 const ACHIEVEMENT_GROUPS = {
-  'survival':{name:'🛡️ 生存印记',cls:'survival',tasks:['做菜','拖地','家具','宠物']},
-  'pen':{name:'✍️ 笔墨征程',cls:'pen',tasks:['日记','影评','自媒体','日程设计']},
-  'mind':{name:'🧠 智识进阶',cls:'mind',tasks:['普通话','英语','韩语','日语','阅读','专业书','艺术理','心理学']},
-  'energy':{name:'🌿 生命能量',cls:'energy',tasks:['体重管理','运动','朋友聚会','美甲','散步']},
-  'fun':{name:'🎮 灵魂逸趣',cls:'fun',tasks:['化妆','丙烯画画','毛笔字','数字油画','电影','电视剧','影视']}
+  'survival':{name:'🛡️ 生存印记',cls:'survival',tasks:['做菜', '拖地', '整理房间', '照顾宠物', '散步', '运动', '早起', '喝水', '记账']},
+  'pen':{name:'✍️ 笔墨征程',cls:'pen',tasks:['写日记', '写影评', '影视自媒体', '日程设计', '写小说', '写诗', '做手帐', '写复盘', '翻译']},
+  'mind':{name:'🧠 智识进阶',cls:'mind',tasks:['普通话', '英语', '韩语', '日语', '阅读名著', '专业书', '艺术', '心理学', '电视剧']},
+  'energy':{name:'🌿 生命能量',cls:'energy',tasks:['体重', '化妆', '护肤', '美甲', '瑜伽', '体态', '泡脚', '冥想', '作息']},
+  'fun':{name:'🎮 灵魂逸趣',cls:'fun',tasks:['护肤', '丙烯画画', '毛笔字', '数字油画', '拍照', '唱歌', '乐器', '手工', '烘焙']},
 };
 
 // 健康人生归入生命能量标签
@@ -1605,101 +1911,144 @@ function drawHealthChart(ws){
 // 第4条：🏆 荣誉墙 = 上半「徽章墙」（隐形格子 + 符号徽章，未解锁显示 ?🔒）
 //               + 下半「进阶路线」（保留原 🌳 树形图）。两套卡片彼此分开。
 const BADGE_ICONS={
-  '做菜':'🥣','拖地':'🧹','家具':'🪑','宠物':'🐾','散步':'🚶','运动':'🏃',
-  '写日记':'📔','写影评':'🎭','自媒体':'📱','日程设计':'📅',
-  '普通话':'🗣️','英语':'🔠','韩语':'🥘','日语':'⛩️','阅读':'📖','专业书':'🎬','艺术':'🎨','心理学':'🧠',
-  '体重管理':'⚖️','朋友聚会':'🎉','美甲':'💅','化妆':'💄',
-  '丙烯画画':'✏️','毛笔字':'🖌️','数字油画':'🖼️','电影':'🎬','看电视剧':'📺'
+  '做菜':'🍳','做饭':'🍲','拖地':'🧹','整理房间':'🧹','家具':'🪑','擦家具':'🧽','照顾宠物':'🐾','宠物':'🐾','散步':'🚶','运动':'🏃',
+  '早起':'🌅','喝水':'💧','记账':'🧾','家务':'🧹',
+  '写日记':'📓','写影评':'🎭','影视自媒体':'📱','自媒体':'📱','日程设计':'📅','写小说':'📝','写诗':'🖋️','做手帐':'📒','写复盘':'🔍','翻译':'🌐',
+  '普通话':'🗣','英语':'🔤','韩语':'📗','日语':'📘','阅读':'📖','阅读名著':'📚','专业书':'📚','专业':'📚','艺术':'🎨','心理学':'🔮',
+  '体重管理':'⚖','体重':'⚖','化妆':'💄','护肤':'💧','美甲':'💅','瑜伽':'🧘','体态':'🕺','泡脚':'🦶','冥想':'🧎','作息':'🌙',
+  '丙烯画画':'🖌','毛笔字':'✏','数字油画':'🖼','电影':'🎬','看电视剧':'📺','电视剧':'📺','影视':'🎬',
+  '朋友':'🙌','朋友聚会':'🎉','拍照':'📸','唱歌':'🎤','乐器':'🎵','手工':'✂','烘焙':'🥐','画画':'🎨'
 };
 function badgeIcon(name){return BADGE_ICONS[name]||'🔹'}
 
 function renderHonor(page){
   const book=DB.achievementBook||{};
   let wallHtml='';
-  // —— 上半：徽章墙（按标签归类，隐形格子，未解锁=?🔒）——
+  // —— 上半：徽章墙（按标签归类，未解锁=?🔒，完全看不到名字，默认折叠）——
   for(const gk of Object.keys(ACHIEVEMENT_GROUPS)){
     const g=ACHIEVEMENT_GROUPS[gk];
-    const cells=g.tasks.map(taskName=>{
+    // 每个分组固定 9 格：真实任务 + 补齐占位（占位永远 🔒，绝不会自动点亮）
+    const SLOTS=9;
+    const taskList=[...g.tasks];
+    while(taskList.length<SLOTS) taskList.push('待解锁·'+(taskList.length+1));
+    const cells=taskList.slice(0,SLOTS).map(taskName=>{
       const data=ACHIEVEMENT_WORDS[gk]&&ACHIEVEMENT_WORDS[gk][taskName];
       const userData=book[taskName]||{count:0,tier:0};
-      const maxTier=Math.max(0,...(data?Object.keys(data).map(Number):[0]));
-      if(userData.tier>=maxTier){
-        // 已毕业：亮金徽章
+      // 判定"是否真有进度"：必须实际打卡过（count>0 且 tier>0）
+      // 未记录在册 / 无进度的任务 → 一律视为未解锁，绝不让空数据自动亮起
+      const hasProgress = (userData.count>0) && (userData.tier>0);
+      const maxTier = hasProgress ? Math.max(0,...(data?Object.keys(data).map(Number):[0])) : 0;
+      if(hasProgress && userData.tier>=maxTier && maxTier>0){
+        // 已毕业：亮金徽章 + 显示真实名字（已经解锁，不再神秘）
         return `<div class="badge-cell got" title="${taskName} · 已满级">
           <span class="badge-emoji">${badgeIcon(taskName)}</span>
           <span class="badge-name">${taskName}</span>
           <span class="badge-mark">👑</span>
         </div>`;
-      } else if(userData.tier>0){
-        // 进行中：显示当前阶级徽章 + 进度
-        const curName=(data&&data[userData.tier]&&data[userData.tier][0])||'进阶';
-        return `<div class="badge-cell on" title="${taskName} · ${curName}">
+      } else if(hasProgress){
+        // 进行中：显示当前阶级徽章 + 真实名字（已解锁的显示）
+        return `<div class="badge-cell on" title="${taskName} · Lv.${userData.tier}">
           <span class="badge-emoji">${badgeIcon(taskName)}</span>
           <span class="badge-name">${taskName}</span>
           <span class="badge-mark">Lv.${userData.tier}</span>
         </div>`;
       } else {
-        // 未解锁：隐形格子，只显示 ? + 🔒
-        return `<div class="badge-cell locked" title="${taskName}（未点亮，保持神秘）">
+        // 未解锁：完全隐藏——名字用 ? 代替，图标用 🔒，什么都看不到
+        return `<div class="badge-cell locked" title="？？？（点亮后才会揭晓）">
           <span class="badge-emoji">🔒</span>
           <span class="badge-name">?</span>
-          <span class="badge-mark">?</span>
+          <span class="badge-mark">🔒</span>
         </div>`;
       }
     }).join('');
-    wallHtml+=`<div class="badge-group">
-      <div class="achv-group-title ${gk}">${g.name} <span style="font-size:11px;font-weight:400">· ${g.tasks.length}个徽章</span></div>
+    // 本组已点亮数（tier>0 视为已点亮一枚）
+    const groupUnlocked = taskList.slice(0, SLOTS).filter(t=>{
+      const ud=book[t]||{tier:0}; return ud.tier>0;
+    }).length;
+    const lockStatus = groupUnlocked>=SLOTS
+      ? '<span class="bgs-lock">👑 全部解锁</span>'
+      : `<span class="bgs-lock">🔒 ${groupUnlocked}/${SLOTS} 已解锁</span>`;
+    // 用 <details> 默认折叠（与进阶路线一致），只有当有已解锁徽章时才默认展开
+    const openAttr = groupUnlocked>0 ? ' open' : '';
+    wallHtml+=`<details class="badge-group"${openAttr}>
+      <summary class="badge-group-summary">
+        <span class="bgs-arrow">▾</span>
+        <span class="bgs-name">${g.name}</span>
+        <span class="bgs-count">${groupUnlocked}/${SLOTS}</span>
+        ${lockStatus}
+      </summary>
       <div class="badge-grid">${cells}</div>
-    </div>`;
+    </details>`;
   }
-  // —— 下半：进阶路线（横向紧凑，一条路两行内写完）——
+  // —— 下半：进阶路线（神秘化 + 主题序列 + 默认折叠 + 未解锁名称隐藏）——
   let treeHtml='';
   for(const q of DB.mainQuests){
     const p=DB.progression[q.id];if(!p)continue;
-    const tiers=p.tiers;
-    const tierCells=tiers.map((name,i)=>{
-      const reached=p.level>i;const cur=i===p.level-1;
-      const cls='path-node '+(reached?'reached':'')+(cur?' current':'')+(tierType(i)==='leaf'?' has-leaf':'')+(tierType(i)==='flower'?' has-flower':'');
-      return '<span class="'+cls+'" title="'+esc(name)+'"><span class="path-emoji">'+treeEmoji(tierType(i),reached)+'</span><span class="path-lv">Lv.'+(i+1)+'</span><span class="path-name">'+esc(name)+'</span></span>';
+    // 确保序列已固定
+    const seq=getQuestThemeSequence(q.id, q.name);
+    const pLevel=p.level||1;
+    const totalTiers=seq.length;
+    // 根据规则 B：当前阶及之前显示名字，下一阶起用 ? 隐藏
+    const tierCells=seq.map((emoji,i)=>{
+      const reached=pLevel>i+1;   // 已完全解锁（不仅是当前阶）
+      const cur=i===pLevel-1;      // 当前正在进阶的阶
+      const isHidden = (i+1) > pLevel;  // 未来阶 = 完全隐藏
+      const showName = !isHidden;  // 当前阶及之前都显示名字
+      const nodeCls=['path-node'];
+      if(reached) nodeCls.push('reached');
+      if(cur) nodeCls.push('current');
+      if(isHidden) nodeCls.push('hidden-node','locked');
+      const displayEmoji = reached ? emoji : (cur ? emoji : '🔒');
+      const displayName = showName ? ('Lv.'+(i+1)) : '?';
+      const titleAttr = reached ? esc(emoji) : '？？？（继续打卡来解锁下一阶）';
+      return '<span class="'+nodeCls.join(' ')+'" title="'+titleAttr+'"><span class="path-emoji">'+displayEmoji+'</span><span class="path-lv">Lv.'+(i+1)+'</span><span class="path-name">'+displayName+'</span></span>';
     }).join('<span class="path-arrow">→</span>');
-    treeHtml+='<div class="card compact-path"><div style="font-weight:700;margin-bottom:8px">🌱 '+esc(q.name)+' <span style="font-size:11px;font-weight:400;color:var(--ink-soft)">（累计 '+(p._count||0)+' 次）</span></div><div class="path-row">'+tierCells+'</div><div style="font-size:12px;color:var(--accent);margin-top:6px">当前：'+esc(p.tiers[p.level-1]||'—')+'</div></div>';
+
+    // 当前显示的真实阶级名（用序列 emoji 表达）
+    const currentEmoji = seq[pLevel-1] || '🌱';
+    const isFullyUnlocked = pLevel > totalTiers;
+    const unlockedCount = Math.min(pLevel, totalTiers);
+    const lockStatus = isFullyUnlocked
+      ? '<span class="ps-lock">👑 全部解锁</span>'
+      : `<span class="ps-lock">🔒 ${unlockedCount}/${totalTiers} 已解锁</span>`;
+
+    treeHtml+='<details class="path-collapsible" id="path-'+q.id+'">'+
+      '<summary class="path-summary">'+
+        '<span class="ps-arrow">▾</span>'+
+        '<span class="ps-name">🌱 '+esc(q.name)+'</span>'+
+        '<span class="ps-count">当前 '+currentEmoji+'</span>'+
+        lockStatus+
+      '</summary>'+
+      '<div class="path-body">'+
+        '<div class="path-theme-hint">🧬 你的专属进化链在<b>第一次点亮时</b>就已选定，之后不会改变。<br>打卡越多，进化越深——但下一阶是什么？<b>不到那一刻你不会知道</b> 🔮</div>'+
+        '<div class="path-row">'+tierCells+'</div>'+
+        (isFullyUnlocked
+          ? '<div style="font-size:13px;color:var(--gold);margin-top:10px;font-weight:700">🎉 进化完成！你已走完这条完整的成长之路。</div>'
+          : '<div style="font-size:12px;color:var(--accent);margin-top:10px">累计 '+(p._count||0)+' 次打卡 · 再打卡 '+(Math.max(0,(pLevel>=totalTiers?0:1)))+' 次进阶</div>')+
+      '</div>'+
+    '</details>';
   }
 
-  // —— 属性徽章墙（清爽版：5列徽章一行 + 每条属性一行进度条 + 底部汇率金额一行）——
+  // —— 属性徽章（每条属性 = 一行：图标+名称 / 进度条(30·60·100 三档刻度) / 点数+档位）——
   DB.attrPoints=DB.attrPoints||{health:0,beauty:0,wisdom:0,will:0,charm:0};
   const ATTR_ORDER=['health','beauty','wisdom','will','charm'];
   const tierMax = Math.max.apply(null, ATTR_TIERS); // 100
-  let attrWallHtml='<div class="attr-grid">';
-  for(const k of ATTR_ORDER){
-    const def=ATTR_DEFS[k];
-    const val=DB.attrPoints[k]||0;
-    let tierReached=0;
-    ATTR_TIERS.forEach(function(th){ if(val>=th) tierReached++; });
-    const cellCls = 'badge-cell attr ' + (tierReached>=3 ? 'got' : (tierReached>0 ? 'on' : ''));
-    attrWallHtml +=
-      '<div class="'+cellCls+'" title="'+def.name+' · '+val+' pt（达到 30/60/100 各点亮一档）">' +
-        '<div class="badge-emoji">'+def.icon+'</div>' +
-        '<div class="badge-name">'+def.name+'</div>' +
-        '<div class="attr-mini-meta"><b>'+val+'</b> pt</div>' +
-        '<div class="badge-mark">'+(tierReached>=3?'👑':(tierReached>0?'●'.repeat(tierReached):'○'))+'</div>' +
-      '</div>';
-  }
-  // 徽章下方：每条属性一行 = 名称 + 进度条(含30/60/100刻度) + 点数+档位
   const rows = ATTR_ORDER.map(k=>{
     const def=ATTR_DEFS[k], val=DB.attrPoints[k]||0;
     const pct=Math.min(100, val/tierMax*100);
     let tierReached=0;
     ATTR_TIERS.forEach(function(th){ if(val>=th) tierReached++; });
     const dots = ATTR_TIERS.map(th=> val>=th?'●':'○').join('');
-    return '<div class="attr-row">' +
+    const stateCls = tierReached>=3 ? 'got' : (tierReached>0 ? 'on' : '');
+    return '<div class="attr-row '+stateCls+'">' +
       '<span class="a-name"><span class="ic">'+def.icon+'</span>'+def.name+'</span>' +
       '<span class="attr-track"><i style="width:'+pct+'%"></i>' +
-        '<span class="a_tiers"><span></span><span></span><span></span><span></span></span>' +
+        '<span class="a_tiers"><span></span><span></span><span></span></span>' +
       '</span>' +
-      '<span class="a_val">'+val+' pt <span class="dots" style="color:var(--gold)">'+dots+'</span></span>' +
+      '<span class="a_val"><span class="pt">'+val+' pt</span><span class="dots" style="color:var(--gold)">'+dots+'</span></span>' +
     '</div>';
   }).join('');
-  attrWallHtml += '</div>' +
+  const attrWallHtml =
     '<div class="attr-summary">' + rows + '</div>' +
     '<div class="attr-foot">' +
       '<span>💰 余额 <span class="money">¥ '+fmtGold()+'</span></span>' +
@@ -1711,25 +2060,25 @@ function renderHonor(page){
 
   // 统计
   const totalUnlocked=Object.values(book).reduce((s,b)=>s+(b.tier||0),0);
-  const totalPossible=Object.keys(ACHIEVEMENT_GROUPS).reduce((s,gk)=>s+ACHIEVEMENT_GROUPS[gk].tasks.length*7,0);
+  const totalPossible=Object.keys(ACHIEVEMENT_GROUPS).reduce((s,gk)=>s+9*7,0);
   page.innerHTML=`
   <div class="page-title">🏆 荣誉墙</div>
-  <div class="page-desc">进阶路线 + 成就图鉴 融合在此。<span style="color:var(--good)">已解锁阶级：${totalUnlocked} / ${totalPossible}</span> ｜ 徽章只在达成阈值后点亮，未点亮的保持神秘（?🔒）。</div>
+  <div class="page-desc">进阶路线 + 成就图鉴 融合在此。<span style="color:var(--good)">已解锁阶级：${totalUnlocked} / ${totalPossible}</span> ｜ 徽章只在达成阈值后点亮，未点亮的保持神秘（?🔒）。每个标签固定 9 枚（3×3），填满才完整。</div>
 
   <div class="card">
     <h3>🎖️ 徽章墙</h3>
-    <div class="page-desc" style="margin-bottom:12px">每个任务 = 一枚徽章，按标签归类。点亮一枚就多一枚徽章，收集它们吧。</div>
+    <div class="page-desc" style="margin-bottom:12px">每坚持做一次，就离一枚徽章更近一步。<b>未解锁的全部用 ? 隐藏</b>——点亮的那一刻才会揭晓是什么 🔮<br>点开下面的卡片，看看你已经收集了多少 →</div>
     ${wallHtml}
   </div>
   <div class="card">
     <h3>💫 属性徽章</h3>
-    <div class="page-desc" style="margin-bottom:12px">每次打卡按任务类型累加属性，达到 <b>30 / 60 / 100</b> 各点亮一档。徽章只在达成阈值后点亮。</div>
+    <div class="page-desc" style="margin-bottom:12px">打卡按任务类型累加属性，进度条满 30 / 60 / 100 各点亮一档。徽章只在达成阈值后点亮。</div>
     ${attrWallHtml}
   </div>
 
   <div class="card">
     <h3>🌳 进阶路线</h3>
-    <div class="page-desc" style="margin-bottom:12px">树干 → 长叶 → 开花。每点亮一阶，树上对应位置生长。</div>
+    <div class="page-desc" style="margin-bottom:12px">每一条主线都有一条<b>专属进化链</b>——打卡越多，进化越深。<br>未解锁的阶用 <b>?</b> 隐藏，不到那一刻你不会知道下一阶是什么 🔮<br>点开下面的卡片，就能看到你的成长之路 →</div>
     ${treeHtml||'<div class="empty">还没有主线任务，去「🎯 主线任务」添加吧。</div>'}
   </div>`;
 }
@@ -2035,6 +2384,11 @@ function markQuest(id,mk){
   if(d.mainMarks[id]!==undefined&&d.mainMarks[id]!==''&&mk!==''){DB.correctionLog.push({date:todayStr(),action:'修改打卡',orig:id+'='+d.mainMarks[id],new:id+'='+mk})}
   d.mainMarks[id]=mk;
   if(id==='M2'&&(mk==='✅'||mk==='⭐'||mk==='❤️')){d.wordCount=Math.max(d.wordCount||0,100)}
+  // —— 首次打卡时，为这条主线选定专属进化链（之后固定）——
+  const q=DB.mainQuests.find(x=>x.id===id);
+  if(q && DB.progression[id] && !DB.progression[id]._seq){
+    getQuestThemeSequence(id, q.name);
+  }
   tryEarnToday();checkProgression();save();render();
 }
 function startCycle(){
@@ -2068,10 +2422,10 @@ function endCycle(){
   DB.mainQuests=defaultDB().mainQuests.map((q,idx)=>({...q,id:'M'+(idx+1)}));
   DB.sideQuests=defaultDB().sideQuests.map((q,idx)=>({...q,count:0,locked:false}));
   DB.extraFields=defaultDB().extraFields.map(f=>({...f,logs:[]}));
-  // 进阶进度也清零
+  // 进阶进度也清零（_seq 不保留 → 新赛季首次打卡时重新随机选序列）
   DB.progression={};
   for(const q of DB.mainQuests){
-    DB.progression[q.id]={level:1,tiers:defaultDB().progression[q.id]?.tiers||['初阶','进阶','高阶','大师','宗师','巅峰','传奇']};
+    DB.progression[q.id]={level:1, _count:0};
   }
   // —— ②b 属性点与徽章同步清零：旧值已封存进 cycleArchive，新赛季从零点亮 ——
   DB.attrPoints={health:0,beauty:0,wisdom:0,will:0,charm:0};
@@ -2102,7 +2456,13 @@ function checkProgression(){
     if(marks.includes('✅')||marks.includes('⭐')||marks.includes('❤️')){
       p._count=(p._count||0)+1;
       const th=[1,3,7,15,30,60,100];
+      const oldLevel=p.level||1;
       for(let i=0;i<7;i++){if(p._count>=th[i])p.level=i+1}
+      // —— 首次进阶（level 1→2）时，固定这条主线的进化链序列 ——
+      if(p.level>oldLevel && oldLevel===1){
+        getQuestThemeSequence(q.id, q.name);  // 内部会随机选序列并写入 p._seq
+        save();  // 立即保存，确保序列不丢失
+      }
     }
   }
 }
@@ -2698,10 +3058,10 @@ function renderLetters(page){
   if(page){
     page.innerHTML=`
     <div class="page-title">✉️ 定时信箱</div>
-    <p style="font-size:13px;color:var(--ink-soft);margin:-8px 0 14px">
+    <p class="letter-intro">
       写给未来的一封信。封存后不可更改、不可删除，直到送达那天自动解锁 🌺
     </p>
-    <div class="card" id="letterComposer">
+    <div class="card letter-composer" id="letterComposer">
       <div class="field"><label>写给未来的自己</label><textarea id="letterBody" rows="4" placeholder="想对未来的自己说什么…"></textarea></div>
       <div class="field"><label>送达日期</label><input type="date" id="letterDate"></div>
       <button class="btn" id="sealBtn" type="button">封存</button>
