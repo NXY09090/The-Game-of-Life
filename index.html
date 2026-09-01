@@ -3016,7 +3016,7 @@ function closeCorrection(){$('#correctionModal').classList.remove('open')}
     g.addColorStop(0,'#1f3a5f');g.addColorStop(.4,'#2f5d8f');g.addColorStop(.75,'#4a86b5');g.addColorStop(1,'#cfe6ec');
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 
-    // —— 礁石群：伪随机位置/大小/透明度，每次排布不同 ——
+    // —— 礁石群：伪随机位置/大小/透明度，每次排布不同（限定在左下角画布内）——
     function reef(x,y,scale,alpha){
       ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.globalAlpha=alpha;
       ctx.fillStyle='#3a6b8a';
@@ -3024,10 +3024,10 @@ function closeCorrection(){$('#correctionModal').classList.remove('open')}
       ctx.fillStyle='#5a8ba8';ctx.fillRect(10,0,20,3);ctx.restore();
     }
     var reefs=[];
-    for(var i=0;i<5;i++){reefs.push({x:rnd()*.25, y:.75+rnd()*.20, s:.8+rnd()*2.2, a:.4+rnd()*.6});}
+    for(var i=0;i<6;i++){reefs.push({x:.02+rnd()*.18, y:.82+rnd()*.10, s:1.2+rnd()*1.8, a:.65+rnd()*.35});}
     for(var i=0;i<reefs.length;i++){var r=reefs[i];reef(W*r.x, H*r.y, r.s, r.a);}
 
-    // —— 像素帆船：伪随机位置/大小/透明度，每次排布不同 ——
+    // —— 像素帆船：伪随机位置/大小/透明度，每次排布不同（限定在右下角画布内）——
     function ship(x,y,scale,alpha){
       ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.globalAlpha=alpha;
       ctx.fillStyle='#8B5A2B';ctx.fillRect(8,14,44,6);ctx.fillRect(8,20,44,4);
@@ -3037,10 +3037,10 @@ function closeCorrection(){$('#correctionModal').classList.remove('open')}
       ctx.fillStyle='#c08a7a';ctx.fillRect(31,2,16,3);ctx.restore();
     }
     var ships=[];
-    for(var i=0;i<1;i++){ships.push({x:.6+rnd()*.35, y:.7+rnd()*.2, s:.6+rnd()*.9, a:.5+rnd()*.5});}
+    for(var i=0;i<2;i++){ships.push({x:.65+rnd()*.28, y:.82+rnd()*.10, s:.7+rnd()*.6, a:.75+rnd()*.25});}
     for(var i=0;i<ships.length;i++){var s=ships[i];ship(W*s.x, H*s.y, s.s, s.a);}
 
-    // —— 云朵：复制「最早的云」(3圆弧)，伪随机位置/大小/透明度，每次排布不同 ——
+    // —— 云朵，伪随机位置/大小/透明度，每次排布不同 ——
     function cloud(x,y,scale,alpha){
       ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.fillStyle='rgba(255,255,255,'+alpha+')';
       ctx.beginPath();ctx.arc(0,0,24,0,7);ctx.arc(20,0,20,0,7);ctx.arc(-18,2,18,0,7);ctx.fill();
