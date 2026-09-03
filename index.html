@@ -1227,7 +1227,7 @@ const ATTR_TIERS = [30, 60, 100];   // 每档阈值
 const TASK_ALIAS = {
   // 历史同义名 → 徽章墙规范名（消除「同一个任务两个名字」的重复引用）
   '做饭':'做菜','擦家具':'整理房间','家具':'整理房间','家务':'整理房间',
-  '宠物':'照顾宠物',
+  '宠物':'宠物',
   '影评':'写影评','自媒体':'影视自媒体',
   '阅读':'阅读名著','专业':'专业书',
   '看电视剧':'电视剧','影视':'电视剧',
@@ -1252,9 +1252,9 @@ const ATTR_PER_TASK = {
   // 键名统一为「徽章墙规范名」；历史同义名由 TASK_ALIAS 自动映射，不再重复定义
   /*🐦‍🔥  成长印记*/
   '做菜':{health:1,charm:1},
-  '拖地':{health:1,will:1},
+  '家务':{health:1,will:1},
   '整理房间':{health:1,will:1},
-  '照顾宠物':{charm:2},
+  '宠物':{charm:2},
   '散步':{health:1,charm:1},
   '运动':{health:2,will:1},
   '早起':{will:2},
@@ -1556,7 +1556,7 @@ function defaultDB(){
   return {
     version:7,
     startDate:todayStr(),
-    playerName:'南熹玉',
+    playerName:'xxx',
     savings:0,
     successfulCycles:0,
     theme:{mode:'gradient',preset:'aurora',color1:'#b9a7e0',color2:'#e6a6cd',cover:null},
@@ -1625,7 +1625,7 @@ function migrateDB(r){
   const def=defaultDB();
   for(const k of Object.keys(def)){if(r[k]===undefined) r[k]=def[k]}
   r.attrPoints=r.attrPoints||{health:0,beauty:0,wisdom:0,will:0,charm:0};
-  if(!r.playerName) r.playerName='南熹玉';
+  if(!r.playerName) r.playerName='xxx';
   if(r.successfulCycles===undefined) r.successfulCycles=0;
   if(!Array.isArray(r.mainQuests)) r.mainQuests=def.mainQuests;
   if(!r.giftPool||typeof r.giftPool!=='object') r.giftPool={low:def.giftPool.low,mid:def.giftPool.mid,high:def.giftPool.high};
@@ -1889,7 +1889,7 @@ const PATH_KEYWORDS = {
   'fitness': ['运动','跑步','健身','减重','体重','瑜伽','体态','跳舞','球','游泳','骑行','走路','散步','拉伸'],
   'beauty': ['护肤','化妆','美貌','美甲','穿搭','面膜','颜值','形象','打扮','发型','护肤','保养'],
   'wisdom': ['学习','英语','日语','韩语','语言','专业','知识','思考','研究','考试','学历','逻辑','编程'],
-  'routine': ['早起','作息','睡觉','早睡','习惯','喝水','整理','拖地','做饭','做菜','家务','规律','日程'],
+  'routine': ['早起','作息','睡觉','早睡','习惯','喝水','整理','家务','做饭','做菜','家务','规律','日程'],
   'willpower': ['戒','断','坚持','早起','完成','自律','意志','节制','拒绝','抵抗','控制'],
   'art': ['画','艺术','丙烯','毛笔','油画','数字油画','设计','摄影','拍照','音乐','乐器','唱歌','手工','创作'],
   'money': ['理财','存钱','记账','投资','收入','省钱','预算','消费','赚钱','经济','基金'],
@@ -2043,7 +2043,7 @@ const ACHIEVEMENT_WORDS = {
       '早起':{1:["晨型人"], 3:["早起冠军"], 5:["黎明掌控者"], 7:["时间主人"]},
       '喝水':{1:["补水新手"], 3:["喝水达人"], 7:["水润之星"]},
       '记账':{1:["记账新手"], 3:["理财学徒"], 5:["财务管家"], 7:["财富掌控者"]}},
-    '拖地':{
+    '家务':{
       1:['光洁初体验','地板初扫','清洁觉醒'],
       2:['再拖一次','地板会反光','又亮了'],
       3:['一尘不染','光洁如新','地板镜子'],
@@ -2061,7 +2061,7 @@ const ACHIEVEMENT_WORDS = {
       6:['家中策展人','家具艺术家','家居之神'],
       7:['无尘家居·宗师','光泽之神','家具之神']
     },
-    '照顾宠物':{
+    '宠物':{
       1:['爱心萌芽','第一铲屎','初次相遇'],
       2:['再铲一次','信任建立','又喂一次'],
       3:['贴心守护','形影不离','毛孩子伙伴'],
@@ -2298,9 +2298,9 @@ const ACHIEVEMENT_WORDS = {
   }
 };
 
-// 标签元信息（第2条：按南熹玉指定重新分配）
+// 标签元信息（第2条：按xxx指定重新分配）
 const ACHIEVEMENT_GROUPS = {
-  'survival':{name:'🛡️ 生存印记',cls:'survival',tasks:['做菜', '拖地', '整理房间', '照顾宠物', '散步', '运动', '早起', '喝水', '记账']},
+  'survival':{name:'🛡️ 生存印记',cls:'survival',tasks:['做菜', '家务', '整理房间', '宠物', '散步', '运动', '早起', '喝水', '记账']},
   'pen':{name:'✍️ 笔墨征程',cls:'pen',tasks:['写日记', '写影评', '影视自媒体', '日程设计', '写小说', '写诗', '做手帐', '写复盘', '翻译']},
   'mind':{name:'🧠 智识进阶',cls:'mind',tasks:['普通话', '英语', '韩语', '日语', '阅读名著', '专业书', '艺术', '心理学', '电视剧']},
   'energy':{name:'🌿 生命能量',cls:'energy',tasks:['体重', '化妆', '护肤', '美甲', '瑜伽', '体态', '泡脚', '冥想', '作息']},
@@ -2558,7 +2558,7 @@ function ritualAchvList(){
 /* 每日任务池 —— 全部可由现有数据自动判定 */
 var DAILY_REQ=[
   {id:'D1',n:'23:00 前上床',   ico:'🌙',field:'sleep'},
-  {id:'D2',n:'固定时间起床',   ico:'⏰',field:'sleep'},
+  {id:'D2',n:'固定时间起床',   ico:'🕥️',field:'sleep'},
   {id:'D3',n:'睡前不玩手机',   ico:'📵',field:'ritual', rv:'noPhone'},
   {id:'D4',n:'运动满 20 分钟', ico:'🏃',field:'sport'},
   {id:'D5',n:'记录今日饮食',   ico:'🍽️',field:'food'},
@@ -3106,7 +3106,7 @@ var HEALTH_ACHV=[
   {d:'sport',id:'YY4', ico:'🕉️',n:'深度连接', m:'maxYoga', k:45,  u:'分钟',exp:100,hint:'单次瑜伽 45 分钟'},
   {d:'sport',id:'YY5', ico:'📗',n:'入门圆满', m:'yogaMins',k:300, u:'分钟',exp:100,hint:'累计瑜伽 5 小时'},
   {d:'sport',id:'YY6', ico:'🎓',n:'进阶修行', m:'yogaMins',k:600, u:'分钟',exp:200,hint:'累计瑜伽 10 小时'},
-  {d:'sport',id:'YY7', ico:'💎',n:'柔韧之钻', m:'yogaMins',k:1200,u:'分钟',exp:200,hint:'累计瑜伽 20 小时'},
+  {d:'sport',id:'YY7', ico:'💎',n:'柔韧身躯', m:'yogaMins',k:1200,u:'分钟',exp:200,hint:'累计瑜伽 20 小时'},
 
   {d:'sport',id:'YX1', ico:'⚡',n:'火花初闪', m:'maxKcal', k:50,  u:'kcal',exp:50, hint:'单次消耗 50 千卡'},
   {d:'sport',id:'YX2', ico:'🌟',n:'百卡星光', m:'maxKcal', k:100, u:'kcal',exp:50, hint:'单次消耗 100 千卡'},
@@ -3151,10 +3151,10 @@ var HEALTH_ACHV=[
   {d:'sleep',id:'SM9', ico:'🌈',n:'一季彩虹', m:'earlyDays', k:90, u:'天',  exp:300,hint:'累计 90 天早睡'},
 
   {d:'sleep',id:'SC1', ico:'🌅',n:'晨光初现', m:'wakeStreak',k:1,  u:'天',  exp:50, hint:'首次 7:00 前起床'},
-  {d:'sleep',id:'SC2', ico:'⏰',n:'七日闹钟', m:'wakeStreak',k:7,  u:'天',  exp:50, hint:'连续 7 天早起'},
+  {d:'sleep',id:'SC2', ico:'⏳️',n:'七日闹钟', m:'wakeStreak',k:7,  u:'天',  exp:50, hint:'连续 7 天早起'},
   {d:'sleep',id:'SC3', ico:'🔗',n:'双周链条', m:'wakeStreak',k:14, u:'天',  exp:100,hint:'连续 14 天早起'},
-  {d:'sleep',id:'SC4', ico:'📿',n:'廿一天珠', m:'wakeStreak',k:21, u:'天',  exp:100,hint:'连续 21 天早起'},
-  {d:'sleep',id:'SC5', ico:'💠',n:'一月晨珠', m:'wakeStreak',k:30, u:'天',  exp:200,hint:'连续 30 天早起'},
+  {d:'sleep',id:'SC4', ico:'🌅',n:'早起小鸟', m:'wakeStreak',k:21, u:'天',  exp:100,hint:'连续 21 天早起'},
+  {d:'sleep',id:'SC5', ico:'🌄',n:'一月晨光', m:'wakeStreak',k:30, u:'天',  exp:200,hint:'连续 30 天早起'},
   {d:'sleep',id:'SC8', ico:'👑',n:'季度王者', m:'wakeStreak',k:90, u:'天',  exp:300,hint:'连续 90 天早起'},
 
   {d:'sleep',id:'SM_G',ico:'💤',n:'深睡达人', m:'goodDays',  k:15, u:'天',  exp:100,hint:'累计 15 天睡够 7 小时'},
@@ -3956,7 +3956,7 @@ const BADGE_ICONS={
   // 键名 = 徽章墙规范名；每个 emoji 全局唯一，不再出现「多个任务共用一个图标」
   // 历史同义名（做饭/宠物/体重管理…）由 canonTask() 映射，无需在此重复登记
   /*🐦‍🔥  成长印记*/
-  '做菜':'🍳','拖地':'🧹','整理房间':'🧺','照顾宠物':'🐾','散步':'🚶','运动':'🏃','早起':'🌅','喝水':'💧','记账':'🧾',
+  '做菜':'🍳','家务':'🧹','整理房间':'🧺','宠物':'🐾','散步':'🚶','运动':'🏃','早起':'🌅','喝水':'💧','记账':'🧾',
   /* ✍️ 笔墨征程 */
   '写日记':'📓','写影评':'🎭','影视自媒体':'📱','日程设计':'📅','写小说':'📝','写诗':'🖋️','做手帐':'📒','写复盘':'🔍','翻译':'🌐',
   /* 🧠 智识进阶 */
@@ -4158,7 +4158,7 @@ function renderHome(page){
       <button class="btn qa-btn" onclick="addQuick()">＋ 记录并生成成就</button>
     </div>
     <div class="quick-add-achv">
-      <span class="qa-achv-label">🏆 今日成就预览：</span>
+      <span class="qa-achv-label">⏳️ 今日成就预览：</span>
       ${(d.achievements||[]).map(a=>`<span class="achievement-tag" onclick="editAchievement('${a}')">${esc(a)} ✎</span>`).join('')||'还没有，快记录点什么吧 ✍️'}
     </div>
   </div>`;
@@ -5399,7 +5399,7 @@ function renderSettings(page){
   <div class="card">
     <h3>👤 玩家</h3>
     <div class="field"><label>昵称（首页称呼）</label>
-      <input value="${esc(DB.playerName||'南熹玉')}" onchange="setPlayerName(this.value)"></div>
+      <input value="${esc(DB.playerName||'xxx')}" onchange="setPlayerName(this.value)"></div>
   </div>
   <div class="card rule-card">
     <div class="rule-head">
@@ -5438,7 +5438,7 @@ function renderSettings(page){
     </div>
   </div>`;
 }
-function setPlayerName(v){DB.playerName=v.trim()||'南熹玉';save();render()}
+function setPlayerName(v){DB.playerName=v.trim()||'xxx';save();render()}
 // 徽章点亮规则开关（即时生效，记入修正日志）
 function setBadgeAutoLight(on){
   const was=DB.badgeAutoLight!==false;
