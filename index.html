@@ -1227,7 +1227,7 @@ const ATTR_TIERS = [30, 60, 100];   // 每档阈值
 const TASK_ALIAS = {
   // 历史同义名 → 徽章墙规范名（消除「同一个任务两个名字」的重复引用）
   '做饭':'做菜','擦家具':'整理房间','家具':'整理房间','家务':'整理房间',
-  '宠物':'宠物',
+  '宠物':'照顾宠物',
   '影评':'写影评','自媒体':'影视自媒体',
   '阅读':'阅读名著','专业':'专业书',
   '看电视剧':'电视剧','影视':'电视剧',
@@ -1252,9 +1252,9 @@ const ATTR_PER_TASK = {
   // 键名统一为「徽章墙规范名」；历史同义名由 TASK_ALIAS 自动映射，不再重复定义
   /*🐦‍🔥  成长印记*/
   '做菜':{health:1,charm:1},
-  '家务':{health:1,will:1},
+  '拖地':{health:1,will:1},
   '整理房间':{health:1,will:1},
-  '宠物':{charm:2},
+  '照顾宠物':{charm:2},
   '散步':{health:1,charm:1},
   '运动':{health:2,will:1},
   '早起':{will:2},
@@ -1556,7 +1556,7 @@ function defaultDB(){
   return {
     version:7,
     startDate:todayStr(),
-    playerName:'xxx',
+    playerName:'XXX',
     savings:0,
     successfulCycles:0,
     theme:{mode:'gradient',preset:'aurora',color1:'#b9a7e0',color2:'#e6a6cd',cover:null},
@@ -1625,7 +1625,7 @@ function migrateDB(r){
   const def=defaultDB();
   for(const k of Object.keys(def)){if(r[k]===undefined) r[k]=def[k]}
   r.attrPoints=r.attrPoints||{health:0,beauty:0,wisdom:0,will:0,charm:0};
-  if(!r.playerName) r.playerName='xxx';
+  if(!r.playerName) r.playerName='XXX';
   if(r.successfulCycles===undefined) r.successfulCycles=0;
   if(!Array.isArray(r.mainQuests)) r.mainQuests=def.mainQuests;
   if(!r.giftPool||typeof r.giftPool!=='object') r.giftPool={low:def.giftPool.low,mid:def.giftPool.mid,high:def.giftPool.high};
@@ -1889,7 +1889,7 @@ const PATH_KEYWORDS = {
   'fitness': ['运动','跑步','健身','减重','体重','瑜伽','体态','跳舞','球','游泳','骑行','走路','散步','拉伸'],
   'beauty': ['护肤','化妆','美貌','美甲','穿搭','面膜','颜值','形象','打扮','发型','护肤','保养'],
   'wisdom': ['学习','英语','日语','韩语','语言','专业','知识','思考','研究','考试','学历','逻辑','编程'],
-  'routine': ['早起','作息','睡觉','早睡','习惯','喝水','整理','家务','做饭','做菜','家务','规律','日程'],
+  'routine': ['早起','作息','睡觉','早睡','习惯','喝水','整理','拖地','做饭','做菜','家务','规律','日程'],
   'willpower': ['戒','断','坚持','早起','完成','自律','意志','节制','拒绝','抵抗','控制'],
   'art': ['画','艺术','丙烯','毛笔','油画','数字油画','设计','摄影','拍照','音乐','乐器','唱歌','手工','创作'],
   'money': ['理财','存钱','记账','投资','收入','省钱','预算','消费','赚钱','经济','基金'],
@@ -2029,7 +2029,7 @@ function render(){
    设计原则：无数字、无前缀、无具体物品名、幽默短句、身份阶进
 ════════════════════════════════════════════════════════════════ */
 const ACHIEVEMENT_WORDS = {
-  // 🛡️ 生存印记
+  // 🛡️ 成长印记
   'survival':{
     '做菜':{
       1:['厨房新人','锅碗瓢盆交响曲','烟火初体验'],
@@ -2043,7 +2043,7 @@ const ACHIEVEMENT_WORDS = {
       '早起':{1:["晨型人"], 3:["早起冠军"], 5:["黎明掌控者"], 7:["时间主人"]},
       '喝水':{1:["补水新手"], 3:["喝水达人"], 7:["水润之星"]},
       '记账':{1:["记账新手"], 3:["理财学徒"], 5:["财务管家"], 7:["财富掌控者"]}},
-    '家务':{
+    '拖地':{
       1:['光洁初体验','地板初扫','清洁觉醒'],
       2:['再拖一次','地板会反光','又亮了'],
       3:['一尘不染','光洁如新','地板镜子'],
@@ -2061,7 +2061,7 @@ const ACHIEVEMENT_WORDS = {
       6:['家中策展人','家具艺术家','家居之神'],
       7:['无尘家居·宗师','光泽之神','家具之神']
     },
-    '宠物':{
+    '照顾宠物':{
       1:['爱心萌芽','第一铲屎','初次相遇'],
       2:['再铲一次','信任建立','又喂一次'],
       3:['贴心守护','形影不离','毛孩子伙伴'],
@@ -2298,9 +2298,9 @@ const ACHIEVEMENT_WORDS = {
   }
 };
 
-// 标签元信息（第2条：按xxx指定重新分配）
+// 标签元信息（第2条：按XXX指定重新分配）
 const ACHIEVEMENT_GROUPS = {
-  'survival':{name:'🛡️ 生存印记',cls:'survival',tasks:['做菜', '家务', '整理房间', '宠物', '散步', '运动', '早起', '喝水', '记账']},
+  'survival':{name:'🐦‍🔥 成长印记',cls:'survival',tasks:['做菜', '拖地', '整理房间', '照顾宠物', '散步', '运动', '早起', '喝水', '记账']},
   'pen':{name:'✍️ 笔墨征程',cls:'pen',tasks:['写日记', '写影评', '影视自媒体', '日程设计', '写小说', '写诗', '做手帐', '写复盘', '翻译']},
   'mind':{name:'🧠 智识进阶',cls:'mind',tasks:['普通话', '英语', '韩语', '日语', '阅读名著', '专业书', '艺术', '心理学', '电视剧']},
   'energy':{name:'🌿 生命能量',cls:'energy',tasks:['体重', '化妆', '护肤', '美甲', '瑜伽', '体态', '泡脚', '冥想', '作息']},
@@ -2318,7 +2318,7 @@ function getTaskLabelGroup(taskName){
       return {group:gk, key:taskName};
     }
   }
-  // 默认归入生存印记
+  // 默认归入成长印记
   return {group:'survival', key:taskName};
 }
 
@@ -2558,7 +2558,7 @@ function ritualAchvList(){
 /* 每日任务池 —— 全部可由现有数据自动判定 */
 var DAILY_REQ=[
   {id:'D1',n:'23:00 前上床',   ico:'🌙',field:'sleep'},
-  {id:'D2',n:'固定时间起床',   ico:'🕥️',field:'sleep'},
+  {id:'D2',n:'固定时间起床',   ico:'⏰',field:'sleep'},
   {id:'D3',n:'睡前不玩手机',   ico:'📵',field:'ritual', rv:'noPhone'},
   {id:'D4',n:'运动满 20 分钟', ico:'🏃',field:'sport'},
   {id:'D5',n:'记录今日饮食',   ico:'🍽️',field:'food'},
@@ -3138,7 +3138,7 @@ var HEALTH_ACHV=[
   {d:'weight',id:'JH1',ico:'📓',n:'饮食记录', m:'foodStreak',k:7,  u:'天',  exp:50, hint:'连续记录饮食 7 天'},
   {d:'weight',id:'JH2',ico:'📔',n:'饮食编年', m:'foodStreak',k:14, u:'天',  exp:100,hint:'连续记录饮食 14 天'},
   {d:'weight',id:'JH3',ico:'📚',n:'饮食百科', m:'foodStreak',k:30, u:'天',  exp:200,hint:'连续记录饮食 30 天'},
-  {d:'weight',id:'JZ29',ico:'🛡️',n:'稳守江山',m:'weightDays',k:30, u:'天',  exp:200,hint:'坚持称重 30 天'},
+  {d:'weight',id:'JZ29',ico:'⛰️',n:'稳守江山',m:'weightDays',k:30, u:'天',  exp:200,hint:'坚持称重 30 天'},
 
   /* ================= 🌙 梦之奖杯（睡眠） ================= */
   {d:'sleep',id:'SM1', ico:'🌑',n:'初夜安眠', m:'earlyDays', k:1,  u:'天',  exp:50, hint:'首次 23:00 前入睡'},
@@ -3150,11 +3150,11 @@ var HEALTH_ACHV=[
   {d:'sleep',id:'SM7', ico:'🚩',n:'双月安眠', m:'earlyDays', k:60, u:'天',  exp:200,hint:'累计 60 天早睡'},
   {d:'sleep',id:'SM9', ico:'🌈',n:'一季彩虹', m:'earlyDays', k:90, u:'天',  exp:300,hint:'累计 90 天早睡'},
 
-  {d:'sleep',id:'SC1', ico:'🌅',n:'晨光初现', m:'wakeStreak',k:1,  u:'天',  exp:50, hint:'首次 7:00 前起床'},
-  {d:'sleep',id:'SC2', ico:'⏳️',n:'七日闹钟', m:'wakeStreak',k:7,  u:'天',  exp:50, hint:'连续 7 天早起'},
+  {d:'sleep',id:'SC1', ico:'🌞',n:'晨光初现', m:'wakeStreak',k:1,  u:'天',  exp:50, hint:'首次 7:00 前起床'},
+  {d:'sleep',id:'SC2', ico:'⏰',n:'七日闹钟', m:'wakeStreak',k:7,  u:'天',  exp:50, hint:'连续 7 天早起'},
   {d:'sleep',id:'SC3', ico:'🔗',n:'双周链条', m:'wakeStreak',k:14, u:'天',  exp:100,hint:'连续 14 天早起'},
-  {d:'sleep',id:'SC4', ico:'🌅',n:'早起小鸟', m:'wakeStreak',k:21, u:'天',  exp:100,hint:'连续 21 天早起'},
-  {d:'sleep',id:'SC5', ico:'🌄',n:'一月晨光', m:'wakeStreak',k:30, u:'天',  exp:200,hint:'连续 30 天早起'},
+  {d:'sleep',id:'SC4', ico:'🌄',n:'早起小鸟', m:'wakeStreak',k:21, u:'天',  exp:100,hint:'连续 21 天早起'},
+  {d:'sleep',id:'SC5', ico:'🌅',n:'一月晨光', m:'wakeStreak',k:30, u:'天',  exp:200,hint:'连续 30 天早起'},
   {d:'sleep',id:'SC8', ico:'👑',n:'季度王者', m:'wakeStreak',k:90, u:'天',  exp:300,hint:'连续 90 天早起'},
 
   {d:'sleep',id:'SM_G',ico:'💤',n:'深睡达人', m:'goodDays',  k:15, u:'天',  exp:100,hint:'累计 15 天睡够 7 小时'},
@@ -3956,7 +3956,7 @@ const BADGE_ICONS={
   // 键名 = 徽章墙规范名；每个 emoji 全局唯一，不再出现「多个任务共用一个图标」
   // 历史同义名（做饭/宠物/体重管理…）由 canonTask() 映射，无需在此重复登记
   /*🐦‍🔥  成长印记*/
-  '做菜':'🍳','家务':'🧹','整理房间':'🧺','宠物':'🐾','散步':'🚶','运动':'🏃','早起':'🌅','喝水':'💧','记账':'🧾',
+  '做菜':'🍳','拖地':'🧹','整理房间':'🧺','照顾宠物':'🐾','散步':'🚶','运动':'🏃','早起':'🌅','喝水':'💧','记账':'🧾',
   /* ✍️ 笔墨征程 */
   '写日记':'📓','写影评':'🎭','影视自媒体':'📱','日程设计':'📅','写小说':'📝','写诗':'🖋️','做手帐':'📒','写复盘':'🔍','翻译':'🌐',
   /* 🧠 智识进阶 */
@@ -4158,7 +4158,7 @@ function renderHome(page){
       <button class="btn qa-btn" onclick="addQuick()">＋ 记录并生成成就</button>
     </div>
     <div class="quick-add-achv">
-      <span class="qa-achv-label">⏳️ 今日成就预览：</span>
+      <span class="qa-achv-label">🏆 今日成就预览：</span>
       ${(d.achievements||[]).map(a=>`<span class="achievement-tag" onclick="editAchievement('${a}')">${esc(a)} ✎</span>`).join('')||'还没有，快记录点什么吧 ✍️'}
     </div>
   </div>`;
@@ -4332,10 +4332,10 @@ function renderUniverse_main(){
     }
     out+='<div class="quest '+(locked?'locked':'')+'">'+
       '<div class="q-head"><span class="q-no">M'+(userStart+i)+'</span>'+
-        '<input class="q-name" value="'+esc(q.name)+'" '+(locked?'readonly':'')+' onchange="renameQuest('+i+',this.value)" placeholder="主线名称">'+
-        (locked?'':'<button class="q-del" onclick="deleteQuest('+i+')" title="删除">🗑️</button>')+
+        '<input class="q-name" value="'+esc(q.name)+'" '+((locked||q.auto)?'readonly':'')+' onchange="renameQuest(\''+q.id+'\',this.value)" placeholder="主线名称">'+
+        ((locked||q.auto)?'':'<button class="q-del" onclick="deleteQuest(\''+q.id+'\')" title="删除">🗑️</button>')+
       '</div>'+
-      '<textarea class="q-desc" rows="1" placeholder="备注 / 规则 / 目标描述（如：22:00前入睡）" '+(locked?'readonly ':'')+'onchange="setQuestDesc('+i+',this.value)" oninput="autoGrow(this)">'+esc(q.desc||'')+'</textarea>'+
+      '<textarea class="q-desc" rows="1" placeholder="备注 / 规则 / 目标描述（如：22:00前入睡）" '+((locked||q.auto)?'readonly ':'')+'onchange="setQuestDesc(\''+q.id+'\',this.value)" oninput="autoGrow(this)">'+esc(q.desc||'')+'</textarea>'+
       '<div class="q-meta">进阶目标 · <strong>Lv.'+lvl+'</strong>（M'+lvl+'）'+(q.desc?' · 已设备注':'')+'</div>'+
       '<div class="marks">'+btns+'</div>'+
     '</div>';
@@ -4456,23 +4456,41 @@ function onAddFrag(i){
 }
 
 function addTLRow(){const t=today();t.timeline=t.timeline||[];t.timeline.push({time:'',content:'',feel:'',achievement:''});save();render()}
-function renameQuest(i,v){const oldN=DB.mainQuests[i].name;migrateBookOnRename(oldN,v);DB.mainQuests[i].name=v;save();render()}
-function setQuestDesc(i,v){const q=DB.mainQuests[i];const oldD=q.desc||'';v=(v||'').trim();q.desc=v;if(oldD!==v)DB.correctionLog.push({date:todayStr(),action:'修改主线备注',orig:q.id+' '+(oldD||'（空）'),new:q.id+' '+(v||'（空）')});save();render()}
+function renameQuest(id,v){
+  // 按 id 定位（不能用索引：作息任务 unshift 在数组最前，渲染又 filter 过，两者索引不一致）
+  const q=DB.mainQuests.find(x=>x.id===id);
+  if(!q) return;
+  if(q.auto){ render(); return; }            // 作息任务锁定，拒绝改名
+  v=(v||'').trim(); if(!v){ render(); return; }
+  if(q.name!==v){ migrateBookOnRename(q.name,v); q.name=v; save(); }
+  render();
+}
+function setQuestDesc(id,v){
+  const q=DB.mainQuests.find(x=>x.id===id);
+  if(!q) return;
+  if(q.auto){ render(); return; }
+  const oldD=q.desc||''; v=(v||'').trim(); q.desc=v;
+  if(oldD!==v)DB.correctionLog.push({date:todayStr(),action:'修改主线备注',orig:q.id+' '+(oldD||'（空）'),new:q.id+' '+(v||'（空）')});
+  save();render();
+}
 function autoGrow(el){el.style.height='auto';el.style.height=el.scrollHeight+'px'}
 function addQuest(){
   // 用户主线编号紧接作息之后：作息(auto)占 M1/M2… ，新任务从下一个 M 开始
   const autoN=DB.mainQuests.filter(x=>x.auto).length;
-  const maxM=DB.mainQuests.reduce((a,q)=>a+(/^M(\d+)$/.test(q.id)?+RegExp.$1:0),0);
-  const nextM=Math.max(autoN,maxM)+1;
+  const maxM=DB.mainQuests.reduce((a,q)=>{const m=/^M(\d+)$/.exec(q.id||'');return Math.max(a,m?+m[1]:0);},0);
+  let nextM=Math.max(autoN,maxM)+1;
+  while(DB.mainQuests.some(q=>q.id==='M'+nextM)) nextM++;   // 防撞号
   DB.mainQuests.push({id:'M'+nextM,name:'新主线',desc:'',locked:false});save();render();
 }
-function deleteQuest(i){
+function deleteQuest(id){
   if(isLocked()){alert('周期进行中无法删除，周期结束后再操作');return}
-  if(!confirm('确定删除这个主线任务？相关进阶之路数据将一并清除，此操作记入修正日志'))return;
-  const q=DB.mainQuests[i];
+  const q=DB.mainQuests.find(x=>x.id===id);
+  if(!q) return;
+  if(q.auto){alert('「早点睡觉 / 早起」是作息自动任务，不能删除');return}
+  if(!confirm('确定删除主线「'+q.name+'」？相关进阶之路数据将一并清除，此操作记入修正日志'))return;
   DB.correctionLog.push({date:todayStr(),action:'删除主线',orig:q.id+' '+q.name});
   delete DB.progression[q.id];
-  DB.mainQuests.splice(i,1);
+  const _qi=DB.mainQuests.indexOf(q); if(_qi>-1) DB.mainQuests.splice(_qi,1);
   // 重排编号：跳过 auto 作息（它们用独立 id auto_early/auto_rise，不参与 M 编号），
   // 用户主线从「作息数量 + 1」开始，保证 M1/M2 永远留给作息、不覆盖其打卡记录
   const autoN=DB.mainQuests.filter(x=>x.auto).length;
@@ -4691,9 +4709,11 @@ function renderMatrix(page){
 
 /* ---- 侧栏/支线 ---- */
 /* ---- 🌱 每日支线（次数型打卡 + 打卡时间/内容 history，第3/8/9条） ---- */
-function renameSide(i,v){const oldN=DB.sideQuests[i].name;migrateBookOnRename(oldN,v);DB.sideQuests[i].name=v;save();render()}
+function renameSide(i,v){const s=DB.sideQuests[i];if(!s)return;v=(v||'').trim();if(!v){render();return;}
+  if(s.name!==v){migrateBookOnRename(s.name,v);s.name=v;save();}
+  render()}
 function addSide(){DB.sideQuests.push({id:'S'+(DB.sideQuests.length+1),name:'新支线',count:0,history:[],locked:false});save();render()}
-function markSide(i){
+function markSide(i){const _s=DB.sideQuests[i];if(!_s)return;
   const s=DB.sideQuests[i];s.count=(s.count||0)+1;
   const note=prompt('（可选）记录这次打卡的内容 / 感想：','')||'';
   s.history=(s.history||[]);s.history.push({date:todayStr(),time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}),note:note.trim()});
@@ -4705,9 +4725,15 @@ function deleteSide(i){
   DB.correctionLog.push({date:todayStr(),action:'删除支线',orig:DB.sideQuests[i].id+' '+DB.sideQuests[i].name});
   DB.sideQuests.splice(i,1);save();render();
 }
-function promote(i){const s=DB.sideQuests[i];DB.mainQuests.push({id:'M'+(DB.mainQuests.length+1),name:s.name,desc:'由支线晋升',locked:false});DB.sideQuests.splice(i,1);save();render()}
+function promote(i){const s=DB.sideQuests[i];if(!s)return;
+  const maxM=DB.mainQuests.reduce((a,q)=>{const m=/^M(\d+)$/.exec(q.id||'');return Math.max(a,m?+m[1]:0);},0);
+  DB.mainQuests.push({id:'M'+(maxM+1),name:s.name,desc:'由支线晋升',locked:false});
+  DB.sideQuests.splice(i,1);save();render();
+}
 /* ---- 📋 习惯记录（自由记录，不影响计划但计入打卡统计，第3条） ---- */
-function renameExtra(i,v){const oldN=DB.extraFields[i].name;migrateBookOnRename(oldN,v);DB.extraFields[i].name=v;save();render()}
+function renameExtra(i,v){const f=DB.extraFields[i];if(!f)return;v=(v||'').trim();if(!v){render();return;}
+  if(f.name!==v){migrateBookOnRename(f.name,v);f.name=v;save();}
+  render()}
 // 兼容旧调用：在输入框直接写内容 = 追加一条（用当前时间）
 function setExtra(i,v){if((v||'').trim()){addFragLog(i,nowHM(),v,'');return} DB.extraFields[i].logs=DB.extraFields[i].logs||[];save();render()}
 function addExtra(){DB.extraFields.push({key:'ex'+Date.now(),name:'新碎片',logs:[]});save();render()}
@@ -5399,7 +5425,7 @@ function renderSettings(page){
   <div class="card">
     <h3>👤 玩家</h3>
     <div class="field"><label>昵称（首页称呼）</label>
-      <input value="${esc(DB.playerName||'xxx')}" onchange="setPlayerName(this.value)"></div>
+      <input value="${esc(DB.playerName||'XXX')}" onchange="setPlayerName(this.value)"></div>
   </div>
   <div class="card rule-card">
     <div class="rule-head">
@@ -5438,7 +5464,7 @@ function renderSettings(page){
     </div>
   </div>`;
 }
-function setPlayerName(v){DB.playerName=v.trim()||'xxx';save();render()}
+function setPlayerName(v){DB.playerName=v.trim()||'XXX';save();render()}
 // 徽章点亮规则开关（即时生效，记入修正日志）
 function setBadgeAutoLight(on){
   const was=DB.badgeAutoLight!==false;
@@ -5932,11 +5958,23 @@ function ensureSleepQuests(){
   let mq=DB.mainQuests.find(q=>q.id===Q_EARLY || q.name==='早点睡觉' || q.name==='早睡');
   if(!mq){
     DB.mainQuests.unshift({id:Q_EARLY,name:'早点睡觉',desc:'23:30 前入睡即成功（根据入睡时间自动判定，不影响赚钱）',locked:true,auto:true});
-  } else { mq.auto=true; mq.locked=true; if(mq.id!==Q_EARLY)mq.id=Q_EARLY; }
+  } else {
+    mq.auto=true; mq.locked=true; if(mq.id!==Q_EARLY)mq.id=Q_EARLY;
+    if(mq.name!=='早点睡觉') mq.name='早点睡觉';   // 自愈：修复历史误改名
+  }
   let rq=DB.mainQuests.find(q=>q.id===Q_RISE || q.name==='早起');
   if(!rq){
     DB.mainQuests.unshift({id:Q_RISE,name:'早起',desc:'06:00~08:00 起床即成功（根据起床时间自动判定，不影响赚钱）',locked:true,auto:true});
-  } else { rq.auto=true; rq.locked=true; if(rq.id!==Q_RISE)rq.id=Q_RISE; }
+  } else {
+    rq.auto=true; rq.locked=true; if(rq.id!==Q_RISE)rq.id=Q_RISE;
+    if(rq.name!=='早起') rq.name='早起';           // 自愈：修复历史误改名
+  }
+  // 保证作息排在最前且顺序固定：M1=早点睡觉，M2=早起
+  // （两次 unshift 会把「早起」顶到最前，这里显式纠正）
+  const _order={}; _order[Q_EARLY]=0; _order[Q_RISE]=1;
+  const _auto=DB.mainQuests.filter(q=>q.auto), _user=DB.mainQuests.filter(q=>!q.auto);
+  _auto.sort((a,b)=>(_order[a.id]??9)-(_order[b.id]??9));
+  DB.mainQuests.length=0; _auto.forEach(q=>DB.mainQuests.push(q)); _user.forEach(q=>DB.mainQuests.push(q));
 }
 
 /**
