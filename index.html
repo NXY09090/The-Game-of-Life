@@ -1209,73 +1209,6 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent-l1)!important;
 </div>
 
 <script>
-/* ══════════════════════════════════════════════════════════════
-   🛡 全局防白屏兜底
-   ──────────────────────────────────────────────────────────────
-   现象：电脑端某个板块"全部空白、什么都没有"，手机端正常。
-   本质：JS 在执行到渲染前就抛了未捕获异常，页面停在
-        page.innerHTML='' 的状态 —— 既没有内容，也没有提示。
-   本兜底做三件事：
-     ① 捕获所有未处理异常 / Promise 拒绝
-     ② 若页面确实是空的，自动补一张可读的错误卡片（含原因 + 重试）
-     ③ 顶部常驻一条可关闭的提示条，方便把原因发给开发者
-   ══════════════════════════════════════════════════════════════ */
-(function(){
-  var shown=false;
-  function esc(x){return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function banner(msg,stack){
-    if(shown) return; shown=true;
-    try{
-      var b=document.createElement('div');
-      b.id='__errBanner';
-      b.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;'+
-        'background:#fff5f5;border:2px solid #e6bcb7;border-radius:12px;padding:12px 14px;'+
-        'font-size:12px;color:#4a4458;line-height:1.7;box-shadow:0 6px 20px rgba(190,120,120,.18);';
-      b.innerHTML='<div style="font-weight:800;margin-bottom:6px;color:#c07d77">'+
-        '⚠️ 页面遇到了一点问题（其他功能仍可正常使用）</div>'+
-        '<div style="white-space:pre-wrap;word-break:break-all;max-height:120px;overflow:auto;'+
-        'background:rgba(255,255,255,.7);border-radius:8px;padding:8px;margin-bottom:8px">'+esc(msg)+
-        (stack?'\n'+esc(stack):'')+'</div>'+
-        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-        '<button onclick="location.reload()" style="padding:6px 14px;border-radius:8px;border:none;'+
-        'background:#b9a7e0;color:#fff;font-weight:700;cursor:pointer;font-size:12px">🔄 重新加载</button>'+
-        '<button onclick="this.closest(\'#__errBanner\').remove()" style="padding:6px 14px;border-radius:8px;'+
-        'border:1.5px solid #e6bcb7;background:#fff;color:#8a8398;cursor:pointer;font-size:12px">知道了</button>'+
-        '</div>';
-      (document.body||document.documentElement).appendChild(b);
-    }catch(e){}
-  }
-  function healEmptyPage(){
-    try{
-      var pg=document.getElementById('page');
-      if(!pg) return;
-      if(pg.innerHTML.replace(/\s/g,'').length>0) return;      // 有内容就不动
-      if(!document.getElementById('app')) return;
-      if(document.getElementById('app').style.display==='none') return;  // 还在封面
-      pg.innerHTML='<div class="card" style="border-color:var(--warn)">'+
-        '<h3>🌿 这个板块暂时没有显示出来</h3>'+
-        '<div class="page-desc">已被自动保护，其他板块不受影响。通常是浏览器缓存了旧版本文件导致，强制刷新即可恢复。</div>'+
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
-        '<button class="btn" onclick="location.reload()">🔄 重新加载页面</button>'+
-        '<button class="btn ghost" onclick="try{localStorage.removeItem(\'gamelife_v9\')}catch(e){};location.reload()">🧹 重置本地数据后重试</button>'+
-        '</div></div>';
-    }catch(e){}
-  }
-  window.addEventListener('error',function(e){
-    banner((e.message||'未知错误')+(e.filename?('  @ '+String(e.filename).split('/').pop()+':'+(e.lineno||0)):''),
-           e.error&&e.error.stack?String(e.error.stack).split('\n').slice(0,3).join('\n'):'');
-    setTimeout(healEmptyPage,60);
-  },true);
-  window.addEventListener('unhandledrejection',function(e){
-    var r=e.reason||{};
-    banner('异步错误：'+(r.message||r), r.stack?String(r.stack).split('\n').slice(0,3).join('\n'):'');
-    setTimeout(healEmptyPage,60);
-  });
-  /* 兜底再兜底：若 1.2 秒后正文仍空（非封面状态），补提示卡片 */
-  window.addEventListener('load',function(){ setTimeout(healEmptyPage,1200); });
-})();
-</script>
-<script>
 /* ════════════════════════════════════════════════════════════════
    💫 属性点系统 + 改名继承 + 成就庆祝动画
    注入到主脚本之前（通过 _inject.py 拼接到 <script> 顶部）
@@ -1327,7 +1260,7 @@ const ATTR_PER_TASK = {
   '早起':{will:2},
   '喝水':{health:1},
   '记账':{will:1},
-  /* 📝 笔墨征程*/
+  /* 📝 笔墨征程 */
   '写日记':{wisdom:1,will:1},
   '写影评':{wisdom:2},
   '影视自媒体':{wisdom:1,charm:1},
@@ -1357,7 +1290,7 @@ const ATTR_PER_TASK = {
   '泡脚':{health:1},
   '冥想':{will:2},
   '作息':{health:1,will:1},
-  /* 🎮 灵魂逸趣 */
+  /* 💓 灵魂逸趣 */
   '电影':{charm:2},
   '丙烯画画':{charm:2},
   '毛笔字':{wisdom:1,charm:1},
@@ -2336,7 +2269,7 @@ const ACHIEVEMENT_WORDS = {
       7:['永恒生命能量','健康不朽','体态主宰']
     }
   },
-  // 🎮 灵魂逸趣
+  // 💓 灵魂逸趣
   'fun':{
     '电影':{
       1:['光影初探','银幕初体验','第一帧'],
@@ -2388,7 +2321,7 @@ const ACHIEVEMENT_GROUPS = {
   'pen':{name:'📝 笔墨征程',cls:'pen',tasks:['写日记', '写影评', '影视自媒体', '日程设计', '写小说', '写诗', '做手帐', '写复盘', '翻译']},
   'mind':{name:'🧠 智识进阶',cls:'mind',tasks:['普通话', '英语', '韩语', '日语', '阅读名著', '专业书', '艺术', '心理学', '电视剧']},
   'energy':{name:'🌿 生命能量',cls:'energy',tasks:['体重', '化妆', '护肤', '美甲', '瑜伽', '体态', '泡脚', '冥想', '作息']},
-  'fun':{name:'🎮 灵魂逸趣',cls:'fun',tasks:['电影', '丙烯画画', '毛笔字', '数字油画', '拍照', '唱歌', '乐器', '手工', '烘焙']},
+  'fun':{name:'💓 灵魂逸趣',cls:'fun',tasks:['电影', '丙烯画画', '毛笔字', '数字油画', '拍照', '唱歌', '乐器', '手工', '烘焙']},
 };
 
 // 健康人生归入生命能量标签
@@ -3846,31 +3779,12 @@ function renderHealth(page){
     const draw=()=>{try{drawHealthChart(ws)}catch(e){}};
     requestAnimationFrame(draw);
     const c=$('#healthChart');
-    if(c&&c.parentElement&&typeof ResizeObserver!=='undefined'){
-      /* 防 resize 反馈循环：只在宽度真的变化(>2px)时重绘，且回调全程 try/catch */
-      var _lastW=0;
-      try{ new ResizeObserver(function(es){
-        try{
-          var w=c.parentElement?c.parentElement.clientWidth:0;
-          if(Math.abs(w-_lastW)<2) return;
-          _lastW=w; requestAnimationFrame(draw);
-        }catch(e){}
-      }).observe(c.parentElement); }catch(e){}
-    }
+    if(c&&c.parentElement&&typeof ResizeObserver!=='undefined'){new ResizeObserver(()=>requestAnimationFrame(draw)).observe(c.parentElement);}
   }
   drawSportKcalChart(kcalData);
   if(typeof ResizeObserver!=='undefined'){
     const sc=$('#sportKcalChart');
-    if(sc&&sc.parentElement){
-      var _lastSW=0;
-      try{ new ResizeObserver(function(){
-        try{
-          var w=sc.parentElement?sc.parentElement.clientWidth:0;
-          if(Math.abs(w-_lastSW)<2) return;
-          _lastSW=w; drawSportKcalChart(kcalData);
-        }catch(e){}
-      }).observe(sc.parentElement); }catch(e){}
-    }
+    if(sc&&sc.parentElement){new ResizeObserver(()=>drawSportKcalChart(kcalData)).observe(sc.parentElement);}
   }
   // 运动热量预览（选类型 + 填时长 → 实时估算，MET × 体重 × 小时）
   const typeEl=$('#hsType'), minsEl=$('#hsMins'), caloEl=$('#hgCaloPreview');
@@ -4110,16 +4024,12 @@ function endHealthCycle(){
 
 // 每日运动消耗图：柱状 + 圆点，纵轴 = 当天 kcal，零数据也画基线
 function drawSportKcalChart(data){
-  /* 🛡 绘制安全网：整段 try/catch + 画布尺寸钳制 + ctx 空值保护
-     —— 桌面宽屏下若 W 算出超大值，位图分配会失败并抛错，进而拖垮整个板块 */
-  try{
   const c=$('#sportKcalChart');if(!c)return;
-  const dpr=Math.min(window.devicePixelRatio||1,2);
-  const W=Math.min(1400,Math.max(240,(c.parentElement?c.parentElement.clientWidth:0)||(window.innerWidth||360)-80));
+  const dpr=window.devicePixelRatio||1;
+  const W=Math.max(240,(c.parentElement?c.parentElement.clientWidth:0)||(window.innerWidth||360)-80);
   const H=150, pl=26, pr=8, pt=14, pb=22;
   c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';
-  const ctx=c.getContext&&c.getContext('2d');if(!ctx)return;
-  ctx.setTransform(1,0,0,1,0,0);ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
   const innerW=W-pl-pr, innerH=H-pt-pb;
   const days=data&&data.length?data:(()=>{const arr=[];for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);arr.unshift({date:d.toISOString().slice(0,10),kcal:0});}return arr;})();
   const vals=days.map(d=>d.kcal||0);
@@ -4159,11 +4069,9 @@ function drawSportKcalChart(data){
   // 纵轴单位
   ctx.fillStyle='#9aa6b0';ctx.font='9px sans-serif';ctx.textAlign='left';
   ctx.fillText('kcal',2,pt+2);
-  }catch(e){}
 }
 
 function drawHealthChart(ws){
-  try{
   const c=$('#healthChart');if(!c)return;
   const dpr=window.devicePixelRatio||1;
   const W=Math.max(240,(c.parentElement?c.parentElement.clientWidth:0)||(window.innerWidth||360)-80);
@@ -4193,7 +4101,6 @@ function drawHealthChart(ws){
     ctx.textAlign=(i===0?'left':(i===ws.length-1?'right':'center'));
     ctx.fillText(w.weight.toFixed(1),x,i===0?y+14:y-8);
   });
-  }catch(e){}
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -4206,13 +4113,13 @@ const BADGE_ICONS={
   // 历史同义名（做饭/宠物/体重管理…）由 canonTask() 映射，无需在此重复登记
   /*🐦‍🔥  成长印记*/
   '做菜':'🍳','拖地':'🧹','整理房间':'🧺','照顾宠物':'🐾','散步':'🚶','运动':'🏃','早起':'🌅','喝水':'💧','记账':'🧾',
-  /* 📝 笔墨征程*/
+  /* 📝 笔墨征程 */
   '写日记':'📓','写影评':'🎭','影视自媒体':'📱','日程设计':'📅','写小说':'📝','写诗':'🖋️','做手帐':'📒','写复盘':'🔍','翻译':'🌐',
   /* 🧠 智识进阶 */
   '普通话':'🗣','英语':'🔤','韩语':'📗','日语':'📘','阅读名著':'📚','专业书':'📕','艺术':'🎨','心理学':'🔮','电视剧':'📺',
   /* 🌿 生命能量 */
   '体重':'⚖','化妆':'💄','护肤':'🧴','美甲':'💅','瑜伽':'🧘','体态':'🕺','泡脚':'🦶','冥想':'🧎','作息':'🌙',
-  /* 🎮 灵魂逸趣 */
+  /* 💓 灵魂逸趣 */
   '电影':'🎬','丙烯画画':'🖌','毛笔字':'✏','数字油画':'🖼','拍照':'📸','唱歌':'🎤','乐器':'🎵','手工':'✂','烘焙':'🥐',
   /* 徽章墙外自建任务 */
   '朋友':'🙌','朋友聚会':'🎉','画画':'🖍️'
@@ -4408,7 +4315,7 @@ function renderHome(page){
     </div>
     <div class="quick-add-achv">
       <span class="qa-achv-label">🎉 今日成就预览：</span>
-      ${(d.achievements||[]).map(a=>`<span class="achievement-tag" onclick="editAchievement('${a}')">${esc(a)} ✎</span>`).join('')||'还没有，快记录点什么吧 '}
+      ${(d.achievements||[]).map(a=>`<span class="achievement-tag" onclick="editAchievement('${a}')">${esc(a)} ✎</span>`).join('')||'还没有，快记录点什么吧'}
     </div>
   </div>`;
   startQuoteTicker();
@@ -4479,7 +4386,7 @@ function renderTimeline(page){
       </div>
       <button class="tl-del" onclick="delTL(${i})" title="删除这条">🗑️</button>
     </div>`).join('');
-  if(!rows) rows='<div class="empty">今日还没有记录，先在下方写一笔吧 📘</div>';
+  if(!rows) rows='<div class="empty">今日还没有记录，先在下方写一笔吧 ✍️</div>';
   page.innerHTML=`
   <div class="page-title">🌸 今日记录</div>
   <div class="page-desc">随手记一笔，日子就有了光 🥰</div>
@@ -4686,7 +4593,7 @@ function renderUniverse_frag(){
         '<span class="frag-count">今日 <b>'+todayN+'</b> · 总计 <span class="total">'+totalN+'</span></span>'+
         (locked?'':'<button class="q-del" onclick="delExtra('+i+')" title="删除此习惯">🗑️</button>')+
       '</div>'+
-      '<div class="frag-groups">'+(groupHtml||'<div class="frag-empty">📙还没有记录，在下方添加第一条 </div>')+'</div>'+
+      '<div class="frag-groups">'+(groupHtml||'<div class="frag-empty">还没有记录，在下方添加第一条 ✍️</div>')+'</div>'+
       (locked?'':'<div class="frag-add">'+
         '<div class="f-row">'+
           '<input class="f-time-input" type="text" value="'+nowHM()+'" id="fragTime'+i+'" placeholder="HH:MM">'+
@@ -5263,7 +5170,6 @@ function renderRetro(page){
   if(weights.length>=2) drawWeightChart(weights,days);
 }
 function drawWeightChart(weights,allDays){
-  try{
   requestAnimationFrame(()=>{
     const c=$('#weightChart');if(!c)return;
     const ctx=c.getContext('2d');
@@ -5286,7 +5192,6 @@ function drawWeightChart(weights,allDays){
       ctx.fillText(w.w,x-8,y-10);
     });
   });
-  }catch(e){}
 }
 function randomDay(){
   const days=Object.keys(DB.records);
