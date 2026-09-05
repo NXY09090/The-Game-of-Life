@@ -1209,6 +1209,73 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent-l1)!important;
 </div>
 
 <script>
+/* ══════════════════════════════════════════════════════════════
+   🛡 全局防白屏兜底
+   ──────────────────────────────────────────────────────────────
+   现象：电脑端某个板块"全部空白、什么都没有"，手机端正常。
+   本质：JS 在执行到渲染前就抛了未捕获异常，页面停在
+        page.innerHTML='' 的状态 —— 既没有内容，也没有提示。
+   本兜底做三件事：
+     ① 捕获所有未处理异常 / Promise 拒绝
+     ② 若页面确实是空的，自动补一张可读的错误卡片（含原因 + 重试）
+     ③ 顶部常驻一条可关闭的提示条，方便把原因发给开发者
+   ══════════════════════════════════════════════════════════════ */
+(function(){
+  var shown=false;
+  function esc(x){return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function banner(msg,stack){
+    if(shown) return; shown=true;
+    try{
+      var b=document.createElement('div');
+      b.id='__errBanner';
+      b.style.cssText='position:fixed;left:12px;right:12px;top:12px;z-index:99999;'+
+        'background:#fff5f5;border:2px solid #e6bcb7;border-radius:12px;padding:12px 14px;'+
+        'font-size:12px;color:#4a4458;line-height:1.7;box-shadow:0 6px 20px rgba(190,120,120,.18);';
+      b.innerHTML='<div style="font-weight:800;margin-bottom:6px;color:#c07d77">'+
+        '⚠️ 页面遇到了一点问题（其他功能仍可正常使用）</div>'+
+        '<div style="white-space:pre-wrap;word-break:break-all;max-height:120px;overflow:auto;'+
+        'background:rgba(255,255,255,.7);border-radius:8px;padding:8px;margin-bottom:8px">'+esc(msg)+
+        (stack?'\n'+esc(stack):'')+'</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+        '<button onclick="location.reload()" style="padding:6px 14px;border-radius:8px;border:none;'+
+        'background:#b9a7e0;color:#fff;font-weight:700;cursor:pointer;font-size:12px">🔄 重新加载</button>'+
+        '<button onclick="this.closest(\'#__errBanner\').remove()" style="padding:6px 14px;border-radius:8px;'+
+        'border:1.5px solid #e6bcb7;background:#fff;color:#8a8398;cursor:pointer;font-size:12px">知道了</button>'+
+        '</div>';
+      (document.body||document.documentElement).appendChild(b);
+    }catch(e){}
+  }
+  function healEmptyPage(){
+    try{
+      var pg=document.getElementById('page');
+      if(!pg) return;
+      if(pg.innerHTML.replace(/\s/g,'').length>0) return;      // 有内容就不动
+      if(!document.getElementById('app')) return;
+      if(document.getElementById('app').style.display==='none') return;  // 还在封面
+      pg.innerHTML='<div class="card" style="border-color:var(--warn)">'+
+        '<h3>🌿 这个板块暂时没有显示出来</h3>'+
+        '<div class="page-desc">已被自动保护，其他板块不受影响。通常是浏览器缓存了旧版本文件导致，强制刷新即可恢复。</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+        '<button class="btn" onclick="location.reload()">🔄 重新加载页面</button>'+
+        '<button class="btn ghost" onclick="try{localStorage.removeItem(\'gamelife_v9\')}catch(e){};location.reload()">🧹 重置本地数据后重试</button>'+
+        '</div></div>';
+    }catch(e){}
+  }
+  window.addEventListener('error',function(e){
+    banner((e.message||'未知错误')+(e.filename?('  @ '+String(e.filename).split('/').pop()+':'+(e.lineno||0)):''),
+           e.error&&e.error.stack?String(e.error.stack).split('\n').slice(0,3).join('\n'):'');
+    setTimeout(healEmptyPage,60);
+  },true);
+  window.addEventListener('unhandledrejection',function(e){
+    var r=e.reason||{};
+    banner('异步错误：'+(r.message||r), r.stack?String(r.stack).split('\n').slice(0,3).join('\n'):'');
+    setTimeout(healEmptyPage,60);
+  });
+  /* 兜底再兜底：若 1.2 秒后正文仍空（非封面状态），补提示卡片 */
+  window.addEventListener('load',function(){ setTimeout(healEmptyPage,1200); });
+})();
+</script>
+<script>
 /* ════════════════════════════════════════════════════════════════
    💫 属性点系统 + 改名继承 + 成就庆祝动画
    注入到主脚本之前（通过 _inject.py 拼接到 <script> 顶部）
@@ -1260,7 +1327,7 @@ const ATTR_PER_TASK = {
   '早起':{will:2},
   '喝水':{health:1},
   '记账':{will:1},
-  /* ✍️ 笔墨征程 */
+  /* 📝 笔墨征程*/
   '写日记':{wisdom:1,will:1},
   '写影评':{wisdom:2},
   '影视自媒体':{wisdom:1,charm:1},
@@ -2007,20 +2074,37 @@ function render(){
   // —— 每次渲染前确保「早点睡觉 / 早起」两条作息任务常驻（M1/M2，自动判定，不影响赚钱）——
   // 这样无论先打开哪个页面，周期打卡总览都能读到作息任务，杜绝"打卡失灵"
   try{ if(typeof ensureSleepQuests==='function') ensureSleepQuests(); }catch(e){}
-  $('#nav').innerHTML=navHTML();
-  refreshStats();
+  /* 侧栏与顶栏单独包裹：即使它们出错，也不能拖垮正文 */
+  try{ const nv=$('#nav'); if(nv) nv.innerHTML=navHTML(); }catch(e){}
+  try{ refreshStats(); }catch(e){}
   const page=$('#page');
+  if(!page) return;
   page.innerHTML='';
   const renderMap={
     home:renderHome,timeline:renderTimeline,universe:renderUniverse,
     quests:renderUniverse,side:renderUniverse,extras:renderUniverse,
     tree:renderHonor,matrix:renderMatrix,savings:renderSavings,gifts:renderGifts,
     retro:renderRetro,letters:renderLetters,challenges:renderChallenges,settings:renderSettings,
-    health:renderHealth,achievements:renderHonor,honor:renderHonor
+    health:renderHealthSafe,achievements:renderHonor,honor:renderHonor
   };
-  (renderMap[currentPage]||renderHome)(page);
-  refreshStats();
-  window.scrollTo(0,0);
+  /* 🛡 页面渲染护栏：任何一个板块出错都只影响它自己，不再整页白屏 */
+  try{
+    (renderMap[currentPage]||renderHome)(page);
+  }catch(err){
+    var _m=(err&&err.message)?String(err.message):String(err);
+    var _e=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+    try{
+      page.innerHTML='<div class="card" style="border-color:var(--warn)">'+
+        '<h3>⚠️ 这个板块出了点小状况</h3>'+
+        '<div class="page-desc">已自动保护，其他板块不受影响。可以点下面的按钮重试。</div>'+
+        '<div style="background:rgb(var(--warn-rgb) / .08);border-radius:10px;padding:12px;'+
+        'font-size:12px;color:var(--ink-soft);word-break:break-all;margin-bottom:12px;'+
+        'white-space:pre-wrap;line-height:1.7">'+_e(_m)+'</div>'+
+        '<button class="btn" onclick="location.reload()">🔄 重新加载页面</button></div>';
+    }catch(e2){ page.innerHTML='<div class="card"><h3>⚠️ 渲染出错</h3></div>'; }
+  }
+  try{ refreshStats(); }catch(e){}
+  try{ window.scrollTo(0,0); }catch(e){}
 }
 
 
@@ -2089,7 +2173,7 @@ const ACHIEVEMENT_WORDS = {
       7:['不朽之躯','超越极限','体能之神']
     }
   },
-  // ✍️ 笔墨征程
+  // 📝 笔墨征程
   'pen':{
     '写日记':{
       1:['笔耕者','记录者觉醒','第一笔'],
@@ -2301,7 +2385,7 @@ const ACHIEVEMENT_WORDS = {
 // 标签元信息（第2条：按XXX指定重新分配）
 const ACHIEVEMENT_GROUPS = {
   'survival':{name:'🐦‍🔥 成长印记',cls:'survival',tasks:['做菜', '拖地', '整理房间', '照顾宠物', '散步', '运动', '早起', '喝水', '记账']},
-  'pen':{name:'✍️ 笔墨征程',cls:'pen',tasks:['写日记', '写影评', '影视自媒体', '日程设计', '写小说', '写诗', '做手帐', '写复盘', '翻译']},
+  'pen':{name:'📝 笔墨征程',cls:'pen',tasks:['写日记', '写影评', '影视自媒体', '日程设计', '写小说', '写诗', '做手帐', '写复盘', '翻译']},
   'mind':{name:'🧠 智识进阶',cls:'mind',tasks:['普通话', '英语', '韩语', '日语', '阅读名著', '专业书', '艺术', '心理学', '电视剧']},
   'energy':{name:'🌿 生命能量',cls:'energy',tasks:['体重', '化妆', '护肤', '美甲', '瑜伽', '体态', '泡脚', '冥想', '作息']},
   'fun':{name:'🎮 灵魂逸趣',cls:'fun',tasks:['电影', '丙烯画画', '毛笔字', '数字油画', '拍照', '唱歌', '乐器', '手工', '烘焙']},
@@ -3123,7 +3207,7 @@ var HEALTH_ACHV=[
   {d:'sport',id:'YH5', ico:'🚀',n:'双月引擎', m:'sportStreak',k:60, u:'天',  exp:200,hint:'连续运动 60 天'},
   {d:'sport',id:'YH6', ico:'🏔️',n:'百日筑基', m:'sportStreak',k:100,u:'天',  exp:300,hint:'连续运动 100 天'},
 
-  /* ================= 🛤️ 重书之路（减重） ================= */
+  /* ================= 🛤️ 重生之路（减重） ================= */
   {d:'weight',id:'JZ1',ico:'🌱',n:'破土新生', m:'weightDays',k:1,  u:'天',  exp:50, hint:'第 1 次记录体重'},
   {d:'weight',id:'JZ4',ico:'⚖️',n:'轻减一斤', m:'lostJin',  k:1,   u:'斤',  exp:50, hint:'减重 1 斤'},
   {d:'weight',id:'JZ5',ico:'🪨',n:'碎石起步', m:'lostJin',  k:2,   u:'斤',  exp:50, hint:'减重 2 斤'},
@@ -3173,7 +3257,7 @@ var HEALTH_CROSS=[
 
 var HACHV_DOMAIN={
   sport: {t:'🏅 运动勋章', desc:'每一次迈步、每一滴汗，都在这里留下痕迹'},
-  weight:{t:'🛤️ 重书之路', desc:'身体在慢慢改写，过程比结果更值得记住'},
+  weight:{t:'🛤️ 重生之路', desc:'身体在慢慢改写，过程比结果更值得记住'},
   sleep: {t:'🌙 梦之奖杯', desc:'睡得好，是给自己最温柔的照顾'}
 };
 
@@ -3283,6 +3367,145 @@ function hachvCrossHtml(P){
     '<div class="hg-group-body">'+body+'</div></details>';
 }
 
+
+/* ============================================================================
+   🛡 健康板块渲染护栏（防白屏）
+   ────────────────────────────────────────────────────────────────────────────
+   背景：经过多轮迭代，存档里可能残留结构异常的数据，例如：
+     · DB.sportRecords 里混入了 null / 非对象项
+     · DB.healthCycle 变成了 null
+     · DB.weightReward 缺 t1/t2/t3 子项
+     · 某天的 extra.sleep 是字符串而不是数字
+   renderHealth 一旦读到这些数据就会抛错；而 render() 在此之前已经执行过
+   page.innerHTML='' —— 于是整个板块变成一片空白，且没有任何报错提示。
+   这正是「电脑端有历史存档 → 空白 / 手机端数据干净 → 正常」的根因。
+
+   方案：
+     ① 渲染前先对健康相关数据做一次「消毒」（sanitizeHealthDB）
+     ② 再用 try/catch 兜底（renderHealthSafe），万一仍出错，
+        显示可读的错误卡片 + 一键修复按钮，而不是白屏
+   ============================================================ */
+function sanitizeHealthDB(){
+  try{
+    if(!DB||typeof DB!=='object') return;
+    if(!DB.records||typeof DB.records!=='object'||Array.isArray(DB.records)) DB.records={};
+
+    /* ① 运动记录：过滤 null / 非对象项，字段补默认值 */
+    if(!Array.isArray(DB.sportRecords)) DB.sportRecords=[];
+    DB.sportRecords=DB.sportRecords.filter(function(r){return r&&typeof r==='object';});
+    DB.sportRecords.forEach(function(r){
+      if(typeof r.date!=='string') r.date=todayStr();
+      if(r.start==null) r.start='';
+      if(r.end==null)   r.end='';
+      if(r.type==null)  r.type='';
+      r.durationMin=Number(r.durationMin)||0;
+      r.steps=Number(r.steps)||0;
+      r.km=Number(r.km)||0;
+      r.cal=Number(r.cal)||0;
+      if(typeof r.feel!=='string') r.feel='';
+    });
+
+    /* ② 健康周期 */
+    if(!DB.healthCycle||typeof DB.healthCycle!=='object')
+      DB.healthCycle={active:false,startDate:null,length:10,dayInCycle:0};
+    if(typeof DB.healthCycle.active!=='boolean') DB.healthCycle.active=false;
+    if(typeof DB.healthCycle.length!=='number'||!DB.healthCycle.length) DB.healthCycle.length=10;
+    if(DB.healthCycle.dayInCycle==null) DB.healthCycle.dayInCycle=0;
+
+    /* ③ 减重奖励三档 */
+    var defWR={t1:{loss:1,gift:'10元以下礼品'},t2:{loss:3,gift:'20元以下礼品'},t3:{loss:5,gift:'20元以下礼品+¥10'}};
+    if(!DB.weightReward||typeof DB.weightReward!=='object') DB.weightReward={};
+    ['t1','t2','t3'].forEach(function(k){
+      if(!DB.weightReward[k]||typeof DB.weightReward[k]!=='object') DB.weightReward[k]={};
+      if(typeof DB.weightReward[k].loss!=='number') DB.weightReward[k].loss=defWR[k].loss;
+      if(typeof DB.weightReward[k].gift!=='string')  DB.weightReward[k].gift=defWR[k].gift;
+    });
+
+    /* ④ 体重：必须是数字 */
+    var bw=parseFloat(DB.bodyWeight);
+    DB.bodyWeight=isNaN(bw)?50:bw;
+
+    /* ⑤ 每天 extra 里的睡眠时长必须是数字，否则 .toFixed 会崩 */
+    for(var d in DB.records){
+      var rec=DB.records[d];
+      if(!rec||typeof rec!=='object'){ delete DB.records[d]; continue; }
+      if(!rec.extra||typeof rec.extra!=='object'||Array.isArray(rec.extra)) rec.extra={};
+      var sv=rec.extra.sleep;
+      if(sv!=null&&sv!==''){ var n=parseFloat(sv); rec.extra.sleep=isNaN(n)?0:n; }
+      else if(sv===''){ rec.extra.sleep=0; }
+    }
+
+    /* ⑥ 其他健康字段兜底 */
+    if(!Array.isArray(DB.healthHistory)) DB.healthHistory=[];
+    if(!DB.healthAchv||typeof DB.healthAchv!=='object') DB.healthAchv={exp:0,unlocked:{},quest:null};
+    if(!DB.healthAchv.unlocked||typeof DB.healthAchv.unlocked!=='object') DB.healthAchv.unlocked={};
+    if(typeof DB.healthAchv.exp!=='number') DB.healthAchv.exp=Number(DB.healthAchv.exp)||0;
+    if(!DB.ritual||typeof DB.ritual!=='object') DB.ritual={};
+    if(!Array.isArray(DB.extraFields)) DB.extraFields=[];
+  }catch(e){}
+}
+
+/* 安全渲染入口：出错时给可读提示 + 修复按钮，绝不留白屏 */
+function renderHealthSafe(page){
+  if(!page) return;
+  try{ sanitizeHealthDB(); }catch(e){}
+  try{
+    renderHealth(page);
+    return;
+  }catch(err){
+    var msg=(err&&err.message)?String(err.message):String(err);
+    var st=(err&&err.stack)?String(err.stack).split('\n').slice(0,3).join('\n'):'';
+    var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+    try{
+      page.innerHTML=
+        '<div class="card" style="border-color:var(--warn)">'+
+        '<h3>🌿 健康人生</h3>'+
+        '<div class="page-desc">这个板块遇到了一点数据问题，已被自动保护起来，其他功能不受影响。</div>'+
+        '<div style="background:rgb(var(--warn-rgb) / .08);border-radius:10px;padding:12px;'+
+        'font-size:12px;color:var(--ink-soft);white-space:pre-wrap;word-break:break-all;'+
+        'margin-bottom:12px;line-height:1.7"><b>原因：</b>'+esc(msg)+
+        (st?'\n'+esc(st):'')+'</div>'+
+        '<button class="btn" onclick="repairHealthData()">🛠 一键修复并重新加载</button> '+
+        '<button class="btn" onclick="resetHealthData()" style="margin-left:8px">'+
+        '🧹 只清空健康数据（其他保留）</button></div>';
+    }catch(e2){
+      page.innerHTML='<div class="card"><h3>🌿 健康人生</h3>'+
+        '<div class="page-desc">数据异常，请点「一键修复」。</div>'+
+        '<button class="btn" onclick="repairHealthData()">🛠 一键修复</button></div>';
+    }
+  }
+}
+
+/* 一键修复：消毒后重渲染 */
+function repairHealthData(){
+  try{
+    sanitizeHealthDB();
+    save();
+    render();
+    if(typeof hgToast==='function') hgToast('已修复，正在重新加载 🌿');
+  }catch(e){ alert('修复失败：'+(e&&e.message?e.message:e)); }
+}
+
+/* 只清空健康数据，主线 / 支线 / 碎片 / 金钱全部保留 */
+function resetHealthData(){
+  if(!confirm('将清空：体重、喝水、进食、睡眠、运动记录与健康成就。\n\n主线、支线、碎片、金钱、徽章等数据全部保留。\n\n确定吗？')) return;
+  try{
+    for(var d in DB.records){
+      var r=DB.records[d];
+      if(r&&typeof r==='object'&&r.extra) r.extra={};
+    }
+    DB.healthHistory=[];
+    DB.sportRecords=[];
+    DB.healthCycle={active:false,startDate:null,length:10,dayInCycle:0};
+    DB.healthAchv={exp:0,unlocked:{},quest:null};
+    DB.ritual={};
+    DB.weightReward={t1:{loss:1,gift:'10元以下礼品'},t2:{loss:3,gift:'20元以下礼品'},t3:{loss:5,gift:'20元以下礼品+¥10'}};
+    DB.bodyWeight=50;
+    save();
+    render();
+    if(typeof hgToast==='function') hgToast('健康数据已清空，可以重新开始 🌱');
+  }catch(e){ alert('清空失败：'+(e&&e.message?e.message:e)); }
+}
 
 function renderHealth(page){
   const ws=healthSeries();
@@ -3623,12 +3846,31 @@ function renderHealth(page){
     const draw=()=>{try{drawHealthChart(ws)}catch(e){}};
     requestAnimationFrame(draw);
     const c=$('#healthChart');
-    if(c&&c.parentElement&&typeof ResizeObserver!=='undefined'){new ResizeObserver(()=>requestAnimationFrame(draw)).observe(c.parentElement);}
+    if(c&&c.parentElement&&typeof ResizeObserver!=='undefined'){
+      /* 防 resize 反馈循环：只在宽度真的变化(>2px)时重绘，且回调全程 try/catch */
+      var _lastW=0;
+      try{ new ResizeObserver(function(es){
+        try{
+          var w=c.parentElement?c.parentElement.clientWidth:0;
+          if(Math.abs(w-_lastW)<2) return;
+          _lastW=w; requestAnimationFrame(draw);
+        }catch(e){}
+      }).observe(c.parentElement); }catch(e){}
+    }
   }
   drawSportKcalChart(kcalData);
   if(typeof ResizeObserver!=='undefined'){
     const sc=$('#sportKcalChart');
-    if(sc&&sc.parentElement){new ResizeObserver(()=>drawSportKcalChart(kcalData)).observe(sc.parentElement);}
+    if(sc&&sc.parentElement){
+      var _lastSW=0;
+      try{ new ResizeObserver(function(){
+        try{
+          var w=sc.parentElement?sc.parentElement.clientWidth:0;
+          if(Math.abs(w-_lastSW)<2) return;
+          _lastSW=w; drawSportKcalChart(kcalData);
+        }catch(e){}
+      }).observe(sc.parentElement); }catch(e){}
+    }
   }
   // 运动热量预览（选类型 + 填时长 → 实时估算，MET × 体重 × 小时）
   const typeEl=$('#hsType'), minsEl=$('#hsMins'), caloEl=$('#hgCaloPreview');
@@ -3868,12 +4110,16 @@ function endHealthCycle(){
 
 // 每日运动消耗图：柱状 + 圆点，纵轴 = 当天 kcal，零数据也画基线
 function drawSportKcalChart(data){
+  /* 🛡 绘制安全网：整段 try/catch + 画布尺寸钳制 + ctx 空值保护
+     —— 桌面宽屏下若 W 算出超大值，位图分配会失败并抛错，进而拖垮整个板块 */
+  try{
   const c=$('#sportKcalChart');if(!c)return;
-  const dpr=window.devicePixelRatio||1;
-  const W=Math.max(240,(c.parentElement?c.parentElement.clientWidth:0)||(window.innerWidth||360)-80);
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const W=Math.min(1400,Math.max(240,(c.parentElement?c.parentElement.clientWidth:0)||(window.innerWidth||360)-80));
   const H=150, pl=26, pr=8, pt=14, pb=22;
   c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';
-  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+  const ctx=c.getContext&&c.getContext('2d');if(!ctx)return;
+  ctx.setTransform(1,0,0,1,0,0);ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
   const innerW=W-pl-pr, innerH=H-pt-pb;
   const days=data&&data.length?data:(()=>{const arr=[];for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);arr.unshift({date:d.toISOString().slice(0,10),kcal:0});}return arr;})();
   const vals=days.map(d=>d.kcal||0);
@@ -3913,9 +4159,11 @@ function drawSportKcalChart(data){
   // 纵轴单位
   ctx.fillStyle='#9aa6b0';ctx.font='9px sans-serif';ctx.textAlign='left';
   ctx.fillText('kcal',2,pt+2);
+  }catch(e){}
 }
 
 function drawHealthChart(ws){
+  try{
   const c=$('#healthChart');if(!c)return;
   const dpr=window.devicePixelRatio||1;
   const W=Math.max(240,(c.parentElement?c.parentElement.clientWidth:0)||(window.innerWidth||360)-80);
@@ -3945,6 +4193,7 @@ function drawHealthChart(ws){
     ctx.textAlign=(i===0?'left':(i===ws.length-1?'right':'center'));
     ctx.fillText(w.weight.toFixed(1),x,i===0?y+14:y-8);
   });
+  }catch(e){}
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -3957,7 +4206,7 @@ const BADGE_ICONS={
   // 历史同义名（做饭/宠物/体重管理…）由 canonTask() 映射，无需在此重复登记
   /*🐦‍🔥  成长印记*/
   '做菜':'🍳','拖地':'🧹','整理房间':'🧺','照顾宠物':'🐾','散步':'🚶','运动':'🏃','早起':'🌅','喝水':'💧','记账':'🧾',
-  /* ✍️ 笔墨征程 */
+  /* 📝 笔墨征程*/
   '写日记':'📓','写影评':'🎭','影视自媒体':'📱','日程设计':'📅','写小说':'📝','写诗':'🖋️','做手帐':'📒','写复盘':'🔍','翻译':'🌐',
   /* 🧠 智识进阶 */
   '普通话':'🗣','英语':'🔤','韩语':'📗','日语':'📘','阅读名著':'📚','专业书':'📕','艺术':'🎨','心理学':'🔮','电视剧':'📺',
@@ -4158,8 +4407,8 @@ function renderHome(page){
       <button class="btn qa-btn" onclick="addQuick()">＋ 记录并生成成就</button>
     </div>
     <div class="quick-add-achv">
-      <span class="qa-achv-label">🏆 今日成就预览：</span>
-      ${(d.achievements||[]).map(a=>`<span class="achievement-tag" onclick="editAchievement('${a}')">${esc(a)} ✎</span>`).join('')||'还没有，快记录点什么吧 ✍️'}
+      <span class="qa-achv-label">🎉 今日成就预览：</span>
+      ${(d.achievements||[]).map(a=>`<span class="achievement-tag" onclick="editAchievement('${a}')">${esc(a)} ✎</span>`).join('')||'还没有，快记录点什么吧 '}
     </div>
   </div>`;
   startQuoteTicker();
@@ -4230,7 +4479,7 @@ function renderTimeline(page){
       </div>
       <button class="tl-del" onclick="delTL(${i})" title="删除这条">🗑️</button>
     </div>`).join('');
-  if(!rows) rows='<div class="empty">今日还没有记录，先在下方写一笔吧 ✍️</div>';
+  if(!rows) rows='<div class="empty">今日还没有记录，先在下方写一笔吧 📘</div>';
   page.innerHTML=`
   <div class="page-title">🌸 今日记录</div>
   <div class="page-desc">随手记一笔，日子就有了光 🥰</div>
@@ -4332,10 +4581,10 @@ function renderUniverse_main(){
     }
     out+='<div class="quest '+(locked?'locked':'')+'">'+
       '<div class="q-head"><span class="q-no">M'+(userStart+i)+'</span>'+
-        '<input class="q-name" value="'+esc(q.name)+'" '+((locked||q.auto)?'readonly':'')+' onchange="renameQuest(\''+q.id+'\',this.value)" placeholder="主线名称">'+
-        ((locked||q.auto)?'':'<button class="q-del" onclick="deleteQuest(\''+q.id+'\')" title="删除">🗑️</button>')+
+        '<input class="q-name" value="'+esc(q.name)+'" '+(locked?'readonly':'')+' onchange="renameQuest('+i+',this.value)" placeholder="主线名称">'+
+        (locked?'':'<button class="q-del" onclick="deleteQuest('+i+')" title="删除">🗑️</button>')+
       '</div>'+
-      '<textarea class="q-desc" rows="1" placeholder="备注 / 规则 / 目标描述（如：22:00前入睡）" '+((locked||q.auto)?'readonly ':'')+'onchange="setQuestDesc(\''+q.id+'\',this.value)" oninput="autoGrow(this)">'+esc(q.desc||'')+'</textarea>'+
+      '<textarea class="q-desc" rows="1" placeholder="备注 / 规则 / 目标描述（如：22:00前入睡）" '+(locked?'readonly ':'')+'onchange="setQuestDesc('+i+',this.value)" oninput="autoGrow(this)">'+esc(q.desc||'')+'</textarea>'+
       '<div class="q-meta">进阶目标 · <strong>Lv.'+lvl+'</strong>（M'+lvl+'）'+(q.desc?' · 已设备注':'')+'</div>'+
       '<div class="marks">'+btns+'</div>'+
     '</div>';
@@ -4437,7 +4686,7 @@ function renderUniverse_frag(){
         '<span class="frag-count">今日 <b>'+todayN+'</b> · 总计 <span class="total">'+totalN+'</span></span>'+
         (locked?'':'<button class="q-del" onclick="delExtra('+i+')" title="删除此习惯">🗑️</button>')+
       '</div>'+
-      '<div class="frag-groups">'+(groupHtml||'<div class="frag-empty">还没有记录，在下方添加第一条 ✍️</div>')+'</div>'+
+      '<div class="frag-groups">'+(groupHtml||'<div class="frag-empty">📙还没有记录，在下方添加第一条 </div>')+'</div>'+
       (locked?'':'<div class="frag-add">'+
         '<div class="f-row">'+
           '<input class="f-time-input" type="text" value="'+nowHM()+'" id="fragTime'+i+'" placeholder="HH:MM">'+
@@ -4456,41 +4705,23 @@ function onAddFrag(i){
 }
 
 function addTLRow(){const t=today();t.timeline=t.timeline||[];t.timeline.push({time:'',content:'',feel:'',achievement:''});save();render()}
-function renameQuest(id,v){
-  // 按 id 定位（不能用索引：作息任务 unshift 在数组最前，渲染又 filter 过，两者索引不一致）
-  const q=DB.mainQuests.find(x=>x.id===id);
-  if(!q) return;
-  if(q.auto){ render(); return; }            // 作息任务锁定，拒绝改名
-  v=(v||'').trim(); if(!v){ render(); return; }
-  if(q.name!==v){ migrateBookOnRename(q.name,v); q.name=v; save(); }
-  render();
-}
-function setQuestDesc(id,v){
-  const q=DB.mainQuests.find(x=>x.id===id);
-  if(!q) return;
-  if(q.auto){ render(); return; }
-  const oldD=q.desc||''; v=(v||'').trim(); q.desc=v;
-  if(oldD!==v)DB.correctionLog.push({date:todayStr(),action:'修改主线备注',orig:q.id+' '+(oldD||'（空）'),new:q.id+' '+(v||'（空）')});
-  save();render();
-}
+function renameQuest(i,v){const oldN=DB.mainQuests[i].name;migrateBookOnRename(oldN,v);DB.mainQuests[i].name=v;save();render()}
+function setQuestDesc(i,v){const q=DB.mainQuests[i];const oldD=q.desc||'';v=(v||'').trim();q.desc=v;if(oldD!==v)DB.correctionLog.push({date:todayStr(),action:'修改主线备注',orig:q.id+' '+(oldD||'（空）'),new:q.id+' '+(v||'（空）')});save();render()}
 function autoGrow(el){el.style.height='auto';el.style.height=el.scrollHeight+'px'}
 function addQuest(){
   // 用户主线编号紧接作息之后：作息(auto)占 M1/M2… ，新任务从下一个 M 开始
   const autoN=DB.mainQuests.filter(x=>x.auto).length;
-  const maxM=DB.mainQuests.reduce((a,q)=>{const m=/^M(\d+)$/.exec(q.id||'');return Math.max(a,m?+m[1]:0);},0);
-  let nextM=Math.max(autoN,maxM)+1;
-  while(DB.mainQuests.some(q=>q.id==='M'+nextM)) nextM++;   // 防撞号
+  const maxM=DB.mainQuests.reduce((a,q)=>a+(/^M(\d+)$/.test(q.id)?+RegExp.$1:0),0);
+  const nextM=Math.max(autoN,maxM)+1;
   DB.mainQuests.push({id:'M'+nextM,name:'新主线',desc:'',locked:false});save();render();
 }
-function deleteQuest(id){
+function deleteQuest(i){
   if(isLocked()){alert('周期进行中无法删除，周期结束后再操作');return}
-  const q=DB.mainQuests.find(x=>x.id===id);
-  if(!q) return;
-  if(q.auto){alert('「早点睡觉 / 早起」是作息自动任务，不能删除');return}
-  if(!confirm('确定删除主线「'+q.name+'」？相关进阶之路数据将一并清除，此操作记入修正日志'))return;
+  if(!confirm('确定删除这个主线任务？相关进阶之路数据将一并清除，此操作记入修正日志'))return;
+  const q=DB.mainQuests[i];
   DB.correctionLog.push({date:todayStr(),action:'删除主线',orig:q.id+' '+q.name});
   delete DB.progression[q.id];
-  const _qi=DB.mainQuests.indexOf(q); if(_qi>-1) DB.mainQuests.splice(_qi,1);
+  DB.mainQuests.splice(i,1);
   // 重排编号：跳过 auto 作息（它们用独立 id auto_early/auto_rise，不参与 M 编号），
   // 用户主线从「作息数量 + 1」开始，保证 M1/M2 永远留给作息、不覆盖其打卡记录
   const autoN=DB.mainQuests.filter(x=>x.auto).length;
@@ -4709,11 +4940,9 @@ function renderMatrix(page){
 
 /* ---- 侧栏/支线 ---- */
 /* ---- 🌱 每日支线（次数型打卡 + 打卡时间/内容 history，第3/8/9条） ---- */
-function renameSide(i,v){const s=DB.sideQuests[i];if(!s)return;v=(v||'').trim();if(!v){render();return;}
-  if(s.name!==v){migrateBookOnRename(s.name,v);s.name=v;save();}
-  render()}
+function renameSide(i,v){const oldN=DB.sideQuests[i].name;migrateBookOnRename(oldN,v);DB.sideQuests[i].name=v;save();render()}
 function addSide(){DB.sideQuests.push({id:'S'+(DB.sideQuests.length+1),name:'新支线',count:0,history:[],locked:false});save();render()}
-function markSide(i){const _s=DB.sideQuests[i];if(!_s)return;
+function markSide(i){
   const s=DB.sideQuests[i];s.count=(s.count||0)+1;
   const note=prompt('（可选）记录这次打卡的内容 / 感想：','')||'';
   s.history=(s.history||[]);s.history.push({date:todayStr(),time:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}),note:note.trim()});
@@ -4725,15 +4954,9 @@ function deleteSide(i){
   DB.correctionLog.push({date:todayStr(),action:'删除支线',orig:DB.sideQuests[i].id+' '+DB.sideQuests[i].name});
   DB.sideQuests.splice(i,1);save();render();
 }
-function promote(i){const s=DB.sideQuests[i];if(!s)return;
-  const maxM=DB.mainQuests.reduce((a,q)=>{const m=/^M(\d+)$/.exec(q.id||'');return Math.max(a,m?+m[1]:0);},0);
-  DB.mainQuests.push({id:'M'+(maxM+1),name:s.name,desc:'由支线晋升',locked:false});
-  DB.sideQuests.splice(i,1);save();render();
-}
+function promote(i){const s=DB.sideQuests[i];DB.mainQuests.push({id:'M'+(DB.mainQuests.length+1),name:s.name,desc:'由支线晋升',locked:false});DB.sideQuests.splice(i,1);save();render()}
 /* ---- 📋 习惯记录（自由记录，不影响计划但计入打卡统计，第3条） ---- */
-function renameExtra(i,v){const f=DB.extraFields[i];if(!f)return;v=(v||'').trim();if(!v){render();return;}
-  if(f.name!==v){migrateBookOnRename(f.name,v);f.name=v;save();}
-  render()}
+function renameExtra(i,v){const oldN=DB.extraFields[i].name;migrateBookOnRename(oldN,v);DB.extraFields[i].name=v;save();render()}
 // 兼容旧调用：在输入框直接写内容 = 追加一条（用当前时间）
 function setExtra(i,v){if((v||'').trim()){addFragLog(i,nowHM(),v,'');return} DB.extraFields[i].logs=DB.extraFields[i].logs||[];save();render()}
 function addExtra(){DB.extraFields.push({key:'ex'+Date.now(),name:'新碎片',logs:[]});save();render()}
@@ -5040,6 +5263,7 @@ function renderRetro(page){
   if(weights.length>=2) drawWeightChart(weights,days);
 }
 function drawWeightChart(weights,allDays){
+  try{
   requestAnimationFrame(()=>{
     const c=$('#weightChart');if(!c)return;
     const ctx=c.getContext('2d');
@@ -5062,6 +5286,7 @@ function drawWeightChart(weights,allDays){
       ctx.fillText(w.w,x-8,y-10);
     });
   });
+  }catch(e){}
 }
 function randomDay(){
   const days=Object.keys(DB.records);
@@ -5958,23 +6183,11 @@ function ensureSleepQuests(){
   let mq=DB.mainQuests.find(q=>q.id===Q_EARLY || q.name==='早点睡觉' || q.name==='早睡');
   if(!mq){
     DB.mainQuests.unshift({id:Q_EARLY,name:'早点睡觉',desc:'23:30 前入睡即成功（根据入睡时间自动判定，不影响赚钱）',locked:true,auto:true});
-  } else {
-    mq.auto=true; mq.locked=true; if(mq.id!==Q_EARLY)mq.id=Q_EARLY;
-    if(mq.name!=='早点睡觉') mq.name='早点睡觉';   // 自愈：修复历史误改名
-  }
+  } else { mq.auto=true; mq.locked=true; if(mq.id!==Q_EARLY)mq.id=Q_EARLY; }
   let rq=DB.mainQuests.find(q=>q.id===Q_RISE || q.name==='早起');
   if(!rq){
     DB.mainQuests.unshift({id:Q_RISE,name:'早起',desc:'06:00~08:00 起床即成功（根据起床时间自动判定，不影响赚钱）',locked:true,auto:true});
-  } else {
-    rq.auto=true; rq.locked=true; if(rq.id!==Q_RISE)rq.id=Q_RISE;
-    if(rq.name!=='早起') rq.name='早起';           // 自愈：修复历史误改名
-  }
-  // 保证作息排在最前且顺序固定：M1=早点睡觉，M2=早起
-  // （两次 unshift 会把「早起」顶到最前，这里显式纠正）
-  const _order={}; _order[Q_EARLY]=0; _order[Q_RISE]=1;
-  const _auto=DB.mainQuests.filter(q=>q.auto), _user=DB.mainQuests.filter(q=>!q.auto);
-  _auto.sort((a,b)=>(_order[a.id]??9)-(_order[b.id]??9));
-  DB.mainQuests.length=0; _auto.forEach(q=>DB.mainQuests.push(q)); _user.forEach(q=>DB.mainQuests.push(q));
+  } else { rq.auto=true; rq.locked=true; if(rq.id!==Q_RISE)rq.id=Q_RISE; }
 }
 
 /**
